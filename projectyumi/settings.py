@@ -99,7 +99,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'admin',
         # 'HOST': 'https://projectyumi.vercel.app/', 
-        # 'PORT': '5432',
+        'PORT': '5432',
     }
 }
 
