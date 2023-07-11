@@ -1,9 +1,9 @@
 echo 'building the project'
-python3.9 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 echo 'make migrations'
-python3.9 manage.py makemigrations
-python3.9 manage.py migrate
+python manage.py makemigrations
+python manage.py migrate
 
 echo 'collect static...'
-python3.9 manage.py collectstatic
+python manage.py collectstatic
