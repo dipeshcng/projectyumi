@@ -12,12 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,8 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8#-1gzyi%5s1e_$skx*+lg2t@(&fo$%f8b#$@1m#7l+)jl2()4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
-
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '.vercel.app']
 
@@ -84,7 +80,7 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'projectyumi.wsgi.application'
-WSGI_APPLICATION = 'projectyumi.wsgi.app'
+WSGI_APPLICATION = 'projectyumi.wsgi.application'
 
 
 # Database
@@ -97,22 +93,17 @@ WSGI_APPLICATION = 'projectyumi.wsgi.app'
 #     }
 # }
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'dbyumi', 
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost', 
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'db_yumi',
-            'USER': 'postgres',
-            'PASSWORD': 'admin',
-        }
-    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
