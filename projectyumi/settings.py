@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-8#-1gzyi%5s1e_$skx*+lg2t@(&fo$%f8b#$@1m#7l+)jl2()4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '.vercel.app']
 
 
 # Application definition
@@ -79,7 +79,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'projectyumi.wsgi.application'
+# WSGI_APPLICATION = 'projectyumi.wsgi.application'
+WSGI_APPLICATION = 'projectyumi.wsgi.app'
 
 
 # Database
@@ -99,7 +100,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'admin',
         'HOST': 'localhost', 
-        'PORT': '',
+        'PORT': '5432',
     }
 }
 
