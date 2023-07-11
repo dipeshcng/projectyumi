@@ -3,5 +3,5 @@
 db.sqlite3
 venv
 *.env
-build_files.sh
-vercel.json
+build_files
+vercel
