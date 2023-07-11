@@ -58,4 +58,4 @@ class Resume(TimeStamp):
     resume = models.FileField(upload_to='resume')
 
     def __str__(self):
-        return f'{self.user.username} resume for {self.title}'
+        return f'{self.user} resume for {self.title}'

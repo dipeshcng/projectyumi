@@ -15,8 +15,8 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessDetail
         fields = ['name_of_business', 'business_contact', 
-                  'location', 'number_of_employee', 'number_of_new_hires', 'level_of_recruitment',
-                  'salary', 'start_date', 'end_date', 'email', 'password']
+                  'location', 'start_date',
+                    'end_date', 'email', 'password', 'role']
         
     def create(self, validated_data):
         email = validate_email(validated_data['email'])
@@ -24,16 +24,16 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
         name_of_business = validated_data['name_of_business']
         business_contact = validated_data['business_contact']
         location = validated_data['location']
-        number_of_employee = validated_data['number_of_employee']
-        number_of_new_hires = validated_data['number_of_new_hires']
-        level_of_recruitment = validated_data['level_of_recruitment']
-        salary = validated_data['salary']
+        # number_of_employee = validated_data['number_of_employee']
+        # number_of_new_hires = validated_data['number_of_new_hires']
+        # level_of_recruitment = validated_data['level_of_recruitment']
+        # salary = validated_data['salary']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
+        role = validated_data['role']
 
         bus = BusinessDetail.objects.create(name_of_business=name_of_business,business_contact=business_contact,location=location,
-                                       number_of_employee=number_of_employee, number_of_new_hires=number_of_new_hires, level_of_recruitment=level_of_recruitment,
-                                       salary=salary, start_date=start_date, end_date=end_date)
+                                        start_date=start_date, end_date=end_date, role=role)
         user = User.objects.create_user(username=email, email=email)
         user.set_password(password)
         user.save()
