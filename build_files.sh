@@ -1,5 +1,5 @@
 echo 'building the project'
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 
 echo 'make migrations'
 python manage.py makemigrations
