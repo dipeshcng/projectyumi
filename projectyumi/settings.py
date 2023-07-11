@@ -108,9 +108,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': config('PG_DB_NAME'),
-            'USER': config('PG_DB_USER'),
-            'PASSWORD': config('PG_DB_PASSWORD'),
+            'NAME': 'db_yumi',
+            'USER': 'postgres',
+            'PASSWORD': 'admin',
             'HOST': 'localhost',
             'PORT': '',
         }
