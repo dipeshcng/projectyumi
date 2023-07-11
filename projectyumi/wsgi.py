@@ -15,8 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'projectyumi.settings')
 
 application = get_wsgi_application()
 
-<<<<<<< HEAD
 app = application
-=======
-app = application
->>>>>>> 97e021bca1a47f6285d091b31e3120f96af7aa8d
