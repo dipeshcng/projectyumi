@@ -111,8 +111,6 @@ else:
             'NAME': 'db_yumi',
             'USER': 'postgres',
             'PASSWORD': 'admin',
-            'HOST': 'localhost',
-            'PORT': '',
         }
     }
 
