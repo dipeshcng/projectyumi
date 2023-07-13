@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from .utils import *
+from rest_framework import status
 
 class UserLoginAPIView(APIView):
     def post(self, request):
@@ -30,7 +31,8 @@ class UserLoginAPIView(APIView):
             elif GraduatesDetail.objects.filter(user=user):
                 item2 = GraduatesDetail.objects.filter(user=user).last()
                 if item2.status == "Active":
-                    resp = {"tokens":get_tokens_for_user(user)}
+                    # resp = {"tokens":get_tokens_for_user(user)}
+                    resp = get_tokens_for_user(user)
                 elif item2.status == "Pending":
                     resp = {
                         "message" : "Account not active yet !"
@@ -76,8 +78,6 @@ class BusinessProfileAPIView(APIView):
     permission_classes = [BusinessOnlyPermission]
 
     def get(self, request):
-        # import pdb;
-        # pdb.set_trace()
         usr = request.user
         item = usr.businessdetail.id
         qset =  BusinessDetail.objects.get(id=item)
@@ -115,9 +115,33 @@ class GraduateProfileAPIView(APIView):
         usr = request.user
         item = usr.graduatesdetail.id
         qset =  GraduatesDetail.objects.get(id=item)
-        serializer = Graduateprofileserializer(qset)
+        serializer = Graduateprofileserializer(qset, context={'request':request})
         resp = {
-            'status' : 'success',
+            'status':status.HTTP_200_OK,
+            'message' : 'success',
             'data' : serializer.data
         }
         return Response(resp)
+    
+
+
+#volunteer views
+
+class volunteerRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VolunteerRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            res = {
+                'status' : status.HTTP_201_CREATED,
+                'message' : 'success',
+                'data' : serializer.data
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'message' : serializer.errors
+            }
+        return Response(res)

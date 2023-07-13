@@ -44,7 +44,7 @@ class GraduatesDetail(TimeStamp):
      #For Graduates
     full_name = models.CharField(max_length=100)
     dob = models.DateField()
-    image = models.ImageField(upload_to='user', null=True, blank=True)
+    image = models.ImageField(upload_to='user/graduate', null=True, blank=True)
     phone = models.CharField(max_length=15)
     # cv = models.FileField(upload_to='files', null=True, blank=True)
 
@@ -52,8 +52,16 @@ class GraduatesDetail(TimeStamp):
         return self.full_name
 
 
+class Volunteer(TimeStamp):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+
+    full_name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='user/volunteer')
+
+
 class Resume(TimeStamp):
-    user = models.ManyToManyField(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, null=True, blank=True)
     resume = models.FileField(upload_to='resume')
 

@@ -53,9 +53,10 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
 class GraduateRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
+    
     class Meta:
         model = GraduatesDetail
-        fields = ["full_name", "dob", "email", "password", "phone", "image"]
+        fields = ['role',"full_name", "dob", "email", "password", "phone", "image"]
 
     def create(self, validated_data):
         email = validate_email(validated_data['email'])
@@ -64,7 +65,8 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         dob = validated_data["dob"]
         phone = validated_data['phone']
         image = validated_data['image']
-        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image)
+        role = validated_data['role']
+        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image, role=role)
         usr = User.objects.create_user(username=email, email=email)
         usr.set_password(password)
         usr.save()
@@ -74,6 +76,35 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
     
 
 class Graduateprofileserializer(serializers.ModelSerializer):
+    icon_url = serializers.SerializerMethodField()
+
     class Meta:
         model = GraduatesDetail
-        fields = "__all__"
+        fields = ['id', 'full_name', 'dob', 'image', 'phone', 'icon_url']
+
+    def get_icon_url(self, obj):
+        return self.context['request'].build_absolute_uri(obj.image.url)
+
+
+#volunteer serializer
+class VolunteerRegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
+
+    class Meta:
+        model = Volunteer
+        fields = ['email', 'password', 'role', 'full_name', 'image']
+    
+    def create(self, validated_data):
+        email = validated_data['email']
+        password = validated_data['password']
+        role = validated_data['role']
+        full_name = validated_data['full_name']
+        image = validated_data['image']
+        volt = Volunteer.objects.create(role=role, full_name = full_name, image=image)
+        usr = User.objects.create_user(username=email, email=email)
+        usr.set_password(password)
+        usr.save()
+        volt.user = usr
+        volt.save()
+        return validated_data

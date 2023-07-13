@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -93,17 +94,25 @@ WSGI_APPLICATION = 'projectyumi.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dbyumi', 
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost', 
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'dbyumi', 
+#         'USER': 'postgres',
+#         'PASSWORD': 'admin',
+#         'HOST': 'localhost', 
+#         'PORT': '5432',
+#     }
+# }
 
+DATABASE_URL = "postgres://projectyumiapi_user:SRBBy1ReixiMoqyvWIZLB6JJhrpKpx14@dpg-cinmhot9aq06u3iaco7g-a.oregon-postgres.render.com/projectyumiapi".replace("\'", "")
+
+DATABASES = {
+    'default': dj_database_url.parse(DATABASE_URL)
+}
+# DATABASES = {
+#     "default" : dj_database_url.parse(os.environ.get('DATABASE_URL'))
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -138,10 +147,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+# STATIC_DIR = BASE_DIR/'static'
+# MEDIA_DIR = BASE_DIR/'media'
+# MEDIA_ROOT = MEDIA_DIR
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = os.path.join(BASE_DIR,'static'),
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -150,12 +161,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-#media root
-#Actual directory user files go to
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
-
-#   url used to access media
-MEDIA_URL = '/media/'
 
 
 #restframework
