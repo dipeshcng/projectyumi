@@ -1,7 +1,14 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
+from . import views
+from apiyumi.login import UserLoginAPIView
+from rest_framework import routers
+
+# router = routers.DefaultRouter()
+# router.register('', views.BusinessregistrationAPIView)
 
 app_name = 'apiyumi'
+
 
 urlpatterns = [
     #Login
@@ -19,4 +26,5 @@ urlpatterns = [
     
     #volunteer end-points
     path('api/v1/auth/volunteer/registration/', volunteerRegistrationView.as_view()),
+    path('api/v1/volunteer/profile/', VolunteerProfileAPIView.as_view()),
 ]

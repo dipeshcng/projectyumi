@@ -1,57 +1,13 @@
-from django.shortcuts import render
 from .serializers import *
 from .models import *
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
-from .utils import *
+from .utils.permissions import *
 from rest_framework import status
-
-class UserLoginAPIView(APIView):
-    def post(self, request):
-        serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid()
-        email = serializer.data['email']
-        password = serializer.data['password']
-        user = authenticate(username = email, password=password)
-        try:
-            if BusinessDetail.objects.filter(user=user):
-                item = BusinessDetail.objects.filter(user=user).last()
-                if item.status == "Active":
-                    resp = {"tokens":get_tokens_for_user(user)}
-                elif item.status == "Pending":
-                    resp = {
-                        "message" : "Account not active yet !"
-                    }
-                else:
-                    resp = {
-                        "message" : "Account disabled contact admin !"
-                    }
-            elif GraduatesDetail.objects.filter(user=user):
-                item2 = GraduatesDetail.objects.filter(user=user).last()
-                if item2.status == "Active":
-                    # resp = {"tokens":get_tokens_for_user(user)}
-                    resp = get_tokens_for_user(user)
-                elif item2.status == "Pending":
-                    resp = {
-                        "message" : "Account not active yet !"
-                    }
-                else:
-                    resp = {
-                        "message" : "Account disabled contact admin !"
-                    }
-            else:
-                resp = {
-                        "message" : "invalid !"
-                    }
-
-        except Exception as e:
-            print(e)
-            resp = {
-                "message": "Invalid credentials provided.."
-            }
-        return Response(resp)
+from django.core.mail import send_mail
+from django.conf import settings
+from apiyumi.utils.email import signup_email
 
 
 #Business Classes API View
@@ -60,11 +16,15 @@ class BusinessregistrationAPIView(APIView):
 
     def post(self, request):
         serializer = BusinessRegistrationSerializer(data=request.data)
+        
         if serializer.is_valid():
+            user_email = serializer.validated_data['email']
             serializer.save()
+            role = 'host business'
+            signup_email(user_email, role)
             resp = {
-                'status': 'success',
-                'data': serializer.data
+                'status':status.HTTP_201_CREATED,
+                'message' : 'created',
             }
             return Response(resp)
         else:
@@ -72,21 +32,26 @@ class BusinessregistrationAPIView(APIView):
                 "message":serializer.errors
             }
             return Response(resp)
-
+        
 
 class BusinessProfileAPIView(APIView):
     permission_classes = [BusinessOnlyPermission]
 
     def get(self, request):
-        usr = request.user
-        item = usr.businessdetail.id
-        qset =  BusinessDetail.objects.get(id=item)
-        serializer = BusinessProfileSerializer(qset)
-        resp = {
-            'status' : 'success',
-            'data' : serializer.data
-        }
-        return Response(resp)
+        try:
+            usr = request.user
+            item = usr.businessdetail.id
+            qset =  BusinessDetail.objects.get(id=item)
+            serializer = BusinessProfileSerializer(qset)
+            resp = {
+                'status' : 'success',
+                'data' : serializer.data
+            }
+            return Response(resp)
+        except:
+            return Response({
+                'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'messsage' : 'server error'})
         
 
 #Graduate classes APIView
@@ -96,10 +61,13 @@ class GraduateRegistrationAPIView(APIView):
     def post(self, request):
         serializer = GraduateRegistrationSerializer(data=request.data)
         if serializer.is_valid():
+            user_email = serializer.validated_data['email']
             serializer.save()
+            role = 'graduate'
+            signup_email(user_email,role)
             resp = {
-                'status': 'success',
-                'data': serializer.data
+                'status': status.HTTP_201_CREATED,
+                'data': 'created'
             }
             return Response(resp)
         else:
@@ -133,11 +101,13 @@ class volunteerRegistrationView(APIView):
     def post(self, request):
         serializer = VolunteerRegistrationSerializer(data=request.data)
         if serializer.is_valid():
+            user_email = serializer.validated_data['email']
             serializer.save()
+            role = 'volunteer'
+            signup_email(user_email, role)
             res = {
                 'status' : status.HTTP_201_CREATED,
-                'message' : 'success',
-                'data' : serializer.data
+                'message' : 'created',
             }
         else:
             res = {
@@ -145,3 +115,19 @@ class volunteerRegistrationView(APIView):
                 'message' : serializer.errors
             }
         return Response(res)
+    
+
+class VolunteerProfileAPIView(APIView):
+    permission_classes = [VolunteerOnlyPermission]
+
+    def get(self, request):
+        usr = request.user
+        item = usr.volunteer.id
+        qset =  Volunteer.objects.get(id=item)
+        serializer = Volunteerprofileserializer(qset, context={'request':request})
+        resp = {
+            'status':status.HTTP_200_OK,
+            'message' : 'success',
+            'data' : serializer.data
+        }
+        return Response(resp)

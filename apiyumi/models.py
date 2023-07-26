@@ -17,6 +17,14 @@ class Role(TimeStamp):
 
     def __str__(self):
         return self.role_type
+    
+
+# class Admin(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+#     role = models.ForeignKey(Role, on_delete=models.CASCADE)
+
+#     full_name = models.CharField(max_length=100)
+
 
 
 class BusinessDetail(TimeStamp):
@@ -25,6 +33,7 @@ class BusinessDetail(TimeStamp):
 
     #for business
     name_of_business = models.CharField(max_length=100)
+    business_logo = models.ImageField(upload_to='business/logo', null=True, blank=True)
     business_contact = models.CharField(max_length=15)
     location = models.CharField(max_length=100)
     number_of_employee = models.IntegerField(null=True, blank=True)
@@ -53,11 +62,14 @@ class GraduatesDetail(TimeStamp):
 
 
 class Volunteer(TimeStamp):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
     full_name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='user/volunteer')
+    image = models.ImageField(upload_to='user/volunteer', null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user}'
 
 
 class Resume(TimeStamp):

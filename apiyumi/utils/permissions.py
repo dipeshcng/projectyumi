@@ -7,8 +7,8 @@ def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        'refresh_token': str(refresh),
-        'access_token': str(refresh.access_token)
+        # 'refresh_token': str(refresh),
+        str(refresh.access_token)
     }
 
 class BusinessOnlyPermission(permissions.BasePermission):

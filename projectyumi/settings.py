@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+from datetime import timedelta
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8#-1gzyi%5s1e_$skx*+lg2t@(&fo$%f8b#$@1m#7l+)jl2()4'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', 'yumi-api.onrender.com']
 
@@ -86,33 +88,30 @@ WSGI_APPLICATION = 'projectyumi.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+if DEBUG:
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': BASE_DIR / 'db.sqlite3',
+    #     }
+    # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'dbyumi', 
+            'USER': 'postgres',
+            'PASSWORD': 'admin',
+            'HOST': 'localhost', 
+            'PORT': '5432',
+        }
+    }
+else:
+    DATABASE_URL = "postgres://projectyumiapi_user:SRBBy1ReixiMoqyvWIZLB6JJhrpKpx14@dpg-cinmhot9aq06u3iaco7g-a.oregon-postgres.render.com/projectyumiapi".replace("\'", "")
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'dbyumi', 
-#         'USER': 'postgres',
-#         'PASSWORD': 'admin',
-#         'HOST': 'localhost', 
-#         'PORT': '5432',
-#     }
-# }
-
-DATABASE_URL = "postgres://projectyumiapi_user:SRBBy1ReixiMoqyvWIZLB6JJhrpKpx14@dpg-cinmhot9aq06u3iaco7g-a.oregon-postgres.render.com/projectyumiapi".replace("\'", "")
-
-DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL)
-}
-# DATABASES = {
-#     "default" : dj_database_url.parse(os.environ.get('DATABASE_URL'))
-# }
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -147,11 +146,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media') 
 MEDIA_URL = '/media/'
-# STATIC_DIR = BASE_DIR/'static'
-# MEDIA_DIR = BASE_DIR/'media'
-# MEDIA_ROOT = MEDIA_DIR
+
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_URL = '/static/'
 
 
 # Default primary key field type
@@ -169,3 +168,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':['rest_framework_simplejwt.authentication.JWTAuthentication', ],
     
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME' : timedelta(days=1),
+    'REFRESH_TOKEN-LIFETIME' : timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+#mail host detail
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")

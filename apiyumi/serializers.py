@@ -1,7 +1,7 @@
 from .models import *
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .validators import *
+from .utils.validators import *
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -14,38 +14,36 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
     class Meta:
         model = BusinessDetail
-        fields = ['name_of_business', 'business_contact', 
+        fields = ['name_of_business', 'business_logo', 'business_contact', 
                   'location', 'start_date',
-                    'end_date', 'email', 'password', 'role']
+                    'end_date', 'email', 'password']
         
     def create(self, validated_data):
+        role = Role.objects.get(role_type = 'host business')
         email = validate_email(validated_data['email'])
         password = validate_password(validated_data['password'])
         name_of_business = validated_data['name_of_business']
+        business_logo = validated_data['business_logo']
         business_contact = validated_data['business_contact']
         location = validated_data['location']
-        # number_of_employee = validated_data['number_of_employee']
-        # number_of_new_hires = validated_data['number_of_new_hires']
-        # level_of_recruitment = validated_data['level_of_recruitment']
-        # salary = validated_data['salary']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
-        role = validated_data['role']
-
         bus = BusinessDetail.objects.create(name_of_business=name_of_business,business_contact=business_contact,location=location,
-                                        start_date=start_date, end_date=end_date, role=role)
+                                        start_date=start_date, end_date=end_date, role=role, business_logo=business_logo)
         user = User.objects.create_user(username=email, email=email)
         user.set_password(password)
         user.save()
         bus.user = user
         bus.save()
         return validated_data
-
+    
+    def get_business_logo(self, obj):
+        return self.context['request'].build_absolute_uri(obj.business_logo.url)
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessDetail
-        fields = "__all__"
+        fields = ['id', 'name_of_business', 'business_contact', 'location', 'business_contact']
 
 
 
@@ -56,16 +54,16 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = GraduatesDetail
-        fields = ['role',"full_name", "dob", "email", "password", "phone", "image"]
+        fields = ["full_name", "dob", "email", "password", "phone", "image"]
 
     def create(self, validated_data):
+        role = Role.objects.get(role_type = 'graduate')
         email = validate_email(validated_data['email'])
         password = validate_password(validated_data['password'])
         full_name = validated_data['full_name']
         dob = validated_data["dob"]
         phone = validated_data['phone']
         image = validated_data['image']
-        role = validated_data['role']
         grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image, role=role)
         usr = User.objects.create_user(username=email, email=email)
         usr.set_password(password)
@@ -76,14 +74,15 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
     
 
 class Graduateprofileserializer(serializers.ModelSerializer):
-    icon_url = serializers.SerializerMethodField()
 
     class Meta:
         model = GraduatesDetail
-        fields = ['id', 'full_name', 'dob', 'image', 'phone', 'icon_url']
+        fields = ['id', 'full_name', 'dob', 'image', 'phone']
 
-    def get_icon_url(self, obj):
+    def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
+
+
 
 
 #volunteer serializer
@@ -93,12 +92,12 @@ class VolunteerRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Volunteer
-        fields = ['email', 'password', 'role', 'full_name', 'image']
+        fields = ['email', 'password', 'full_name', 'image']
     
     def create(self, validated_data):
+        role = Role.objects.get(role_type = 'volunteer')
         email = validated_data['email']
         password = validated_data['password']
-        role = validated_data['role']
         full_name = validated_data['full_name']
         image = validated_data['image']
         volt = Volunteer.objects.create(role=role, full_name = full_name, image=image)
@@ -108,3 +107,13 @@ class VolunteerRegistrationSerializer(serializers.ModelSerializer):
         volt.user = usr
         volt.save()
         return validated_data
+    
+
+class Volunteerprofileserializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Volunteer
+        fields = ['id', 'full_name','image']
+
+    def get_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.image.url)
