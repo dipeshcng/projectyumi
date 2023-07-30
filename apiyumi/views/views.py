@@ -120,6 +120,7 @@ class volunteerRegistrationView(APIView):
                 'message' : serializer.errors
             }
         return Response(res)
+
     
 
 class VolunteerProfileAPIView(APIView):

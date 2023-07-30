@@ -65,7 +65,6 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         full_name = validated_data['full_name']
         dob = validated_data["dob"]
         age = calculate_age(dob)
-        validate_graduate_age(age)
         phone = validated_data['phone']
         image = validated_data['image']
         grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image, role=role)
@@ -100,8 +99,8 @@ class VolunteerRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         role = Role.objects.get(role_type = 'volunteer')
-        email = validated_data['email']
-        password = validated_data['password']
+        email = validate_email(validated_data['email'])
+        password = validate_password(validated_data['password'])
         full_name = validated_data['full_name']
         image = validated_data['image']
         volt = Volunteer.objects.create(role=role, full_name = full_name, image=image)
