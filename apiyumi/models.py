@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .constants import *
+from .utils.constants import *
 
 
 class TimeStamp(models.Model):
@@ -19,11 +19,13 @@ class Role(TimeStamp):
         return self.role_type
     
 
-# class Admin(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-#     role = models.ForeignKey(Role, on_delete=models.CASCADE)
+class Admin(TimeStamp):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=100)
 
-#     full_name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.full_name
 
 
 

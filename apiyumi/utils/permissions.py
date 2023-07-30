@@ -56,3 +56,44 @@ class VolunteerOnlyPermission(permissions.BasePermission):
             print(e)
             has_perm = False
         return has_perm
+
+
+class AdminOnlyPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user = request.user
+        try:
+            usr = user.admin
+            if usr.status == "Active":
+                has_perm = True
+            else:
+                has_perm = False
+        except Exception as e:
+            print(e)
+            has_perm = False
+        return has_perm
+
+
+class SuperAdminOnlyPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user = request.user
+        try:
+            usr = user.is_superuser
+            if usr:
+                has_perm = True
+            else:
+                has_perm = False
+        except Exception as e:
+            print(e)
+            has_perm = False
+        return has_perm
+
+
+class loginRequiredPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user:
+            has_perm = True
+        else:
+            has_perm = False
+        return has_perm

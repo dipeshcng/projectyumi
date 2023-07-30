@@ -1,18 +1,33 @@
 from django.urls import path, include
-from .views import *
-from . import views
-from apiyumi.login import UserLoginAPIView
+from .views.views import *
+from .views.reset_password import UserResetPasswordRequestEmailAPIView, UserPasswordTokenCheckAPI, UserSetNewPasswordAPIView, \
+    UserPasswordChangeAPIView
+
+from apiyumi.views.login import UserLoginAPIView
 from rest_framework import routers
+from apiyumi.views.admin_views import AdminRegistrationAPIView, AdminProfileView
 
 # router = routers.DefaultRouter()
 # router.register('', views.BusinessregistrationAPIView)
 
 app_name = 'apiyumi'
 
-
 urlpatterns = [
     #Login
     path('api/v1/auth/login/', UserLoginAPIView.as_view()),
+
+    #reset password
+    path('api/v1/user/request-reset-email/', UserResetPasswordRequestEmailAPIView.as_view()),
+    path('api/v1/user/password-reset/check/token/<uidb64>/<token>/',UserPasswordTokenCheckAPI.as_view(), name="user-token-check"),
+    path('api/v1/user/password-reset-complete/', UserSetNewPasswordAPIView.as_view(),),
+
+    #change password
+    path('api/v1/user/password-change/', UserPasswordChangeAPIView.as_view()),
+    
+    #admin
+    path('api/v1/auth/admin/registration', AdminRegistrationAPIView.as_view()),
+    path('api/v1/admin/profile/', AdminProfileView.as_view()),
+
 
     #Business end-points
     path('api/v1/auth/business/registration/', BusinessregistrationAPIView.as_view()),

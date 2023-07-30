@@ -11,3 +11,9 @@ def validate_password(value):
     if value.isalnum():
         raise serializers.ValidationError('password must have atleast one special character.')
     return value
+
+
+def validate_graduate_age(value):
+    if value < 16:
+        raise serializers.ValidationError('graduate must be above 16 years old')
+    return value
