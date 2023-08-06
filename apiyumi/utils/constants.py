@@ -7,11 +7,11 @@ STATUS = (
 
 
 USER_TYPE = (
-    ("SuperAdmin", "SuperAdmin"),
-    ("Admin", "Admin"),
-    ("Interns", "Interns"),
-    ("Volunteer", "Volunteer"),
-    ("Business", "Business")
+    ("superAdmin", "superAdmin"),
+    ("admin", "admin"),
+    ("graduate", "graduate"),
+    ("volunteer", "volunteer"),
+    ("host business", "host business")
 )
 
 SALARY_STATUS = (

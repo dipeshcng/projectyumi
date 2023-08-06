@@ -7,8 +7,10 @@ from ..utils.permissions import *
 from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
-from apiyumi.utils.email import signup_email
+from apiyumi.utils.email import signup_email, Profile_Update_email
 from apiyumi.utils.utils import calculate_age
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework import generics
 
 
 #Business Classes API View
@@ -37,13 +39,14 @@ class BusinessregistrationAPIView(APIView):
 
 class BusinessProfileAPIView(APIView):
     permission_classes = [BusinessOnlyPermission]
+    parser_classes = [FormParser, MultiPartParser, JSONParser]
 
     def get(self, request):
         try:
             usr = request.user
             item = usr.businessdetail.id
             qset =  BusinessDetail.objects.get(id=item)
-            serializer = BusinessProfileSerializer(qset)
+            serializer = BusinessProfileSerializer(qset, context={'request': request})
             resp = {
                 'status' : 'success',
                 'data' : serializer.data
@@ -53,9 +56,32 @@ class BusinessProfileAPIView(APIView):
             return Response({
                 'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                 'messsage' : 'server error'})
+    
+    def patch(self, request, *args, **kwargs):
+        print(request.data, '===============')
+        usr = request.user
+        item = usr.businessdetail.id
+        qset =  BusinessDetail.objects.get(id=item)
+        image = request.data['business_logo']
+        serializer = BusinessProfileSerializer(qset,data=request.data, partial=True)
+        if serializer.is_valid():
+            print(serializer.validated_data)
+            serializer.save()
+            role = 'host business'
+            # Profile_Update_email(usr.username, role)
+            res = {
+                'status' : status.HTTP_200_OK,
+                'message' : 'update success'
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'error' : serializer.errors
+            }
+        return Response(res)
         
 
-#Graduate classes APIView
+#Graduate registration, profile, update view
 class GraduateRegistrationAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -96,9 +122,29 @@ class GraduateProfileAPIView(APIView):
         }
         return Response(resp)
     
+    def patch(self, request):
+        usr = request.user
+        item = usr.graduatesdetail.id
+        qset =  GraduatesDetail.objects.get(id=item)
+        serializer = Graduateprofileserializer(qset,data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            role = 'graduate'
+            Profile_Update_email(usr.username, role)
+            res = {
+                'status' : status.HTTP_200_OK,
+                'message' : 'update success'
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'error' : serializer.errors
+            }
+        return Response(res)
+    
 
 
-#volunteer views
+#volunteer registration, profile, update view
 
 class volunteerRegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -120,6 +166,8 @@ class volunteerRegistrationView(APIView):
                 'message' : serializer.errors
             }
         return Response(res)
+    
+    
 
     
 
@@ -137,3 +185,33 @@ class VolunteerProfileAPIView(APIView):
             'data' : serializer.data
         }
         return Response(resp)
+    
+    def patch(self, request):
+        print(request.FILES)
+        usr = request.user
+        item = usr.volunteer.id
+        qset =  Volunteer.objects.get(id=item)
+        serializer = Volunteerprofileserializer(qset,data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            role = 'volunteer'
+            Profile_Update_email(usr.username, role)
+            res = {
+                'status' : status.HTTP_200_OK,
+                'message' : 'update success'
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'error' : serializer.errors
+            }
+        return Response(res)
+
+
+class VolunteerDeleteAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def delete(self, rquest, pk=None):
+        user = Volunteer.objects.get(id=pk)
+        user.delete()
+        return Response({'message' : 'deleted'})

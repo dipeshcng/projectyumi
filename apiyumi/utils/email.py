@@ -24,6 +24,21 @@ def signup_email(recipient, role):
     send_mail(subject, message, email_from, recipient_list)
 
 
+def Profile_Update_email(recipient, role):
+    if role == 'host business':
+        subject = 'signup success'
+        message = 'Hi! profile update successfull. Thank You for being part of Project YUMI.'
+    elif role == "graduate":
+        subject = 'signup success'
+        message = 'Hi! profile update successfull. Thank You for being part of Project YUMI.'
+    elif role == "volunteer":
+        subject = 'signup success'
+        message = 'Hi! profile update successfull. Thank You for being part of Project YUMI.'
+    else:
+        return Response(serializers.errors)
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [f'{recipient}',]
+    send_mail(subject, message, email_from, recipient_list)
 
 class EmailThread(threading.Thread):
     

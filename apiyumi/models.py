@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .utils.constants import *
-
+from django.conf import settings
 
 class TimeStamp(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -72,6 +72,10 @@ class Volunteer(TimeStamp):
 
     def __str__(self):
         return f'{self.user}'
+    
+    @property
+    def image_url(self):
+        return "{0}{1}".format(settings.MEDIA_URL, self.image.url)
 
 
 class Resume(TimeStamp):

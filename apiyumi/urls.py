@@ -42,4 +42,5 @@ urlpatterns = [
     #volunteer end-points
     path('api/v1/auth/volunteer/registration/', volunteerRegistrationView.as_view()),
     path('api/v1/volunteer/profile/', VolunteerProfileAPIView.as_view()),
+    path('api/v1/volunteer/<int:pk>/', VolunteerDeleteAPIView.as_view()),
 ]

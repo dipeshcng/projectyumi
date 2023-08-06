@@ -12,11 +12,15 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'full_name']
 
     def create(self, validated_data):
-        role = Role.objects.get(role_type = 'admin')
+        role_instance, created = Role.objects.get_or_create(role_type = 'admin')
+        if created:
+            # Set other attributes for the newly created role if needed
+            role_instance.status = 'Active'
+            role_instance.save()
         email = validate_email(validated_data['email'])
         password = validate_password(validated_data['password'])
         full_name = validated_data['full_name']
-        admin = Admin.objects.create(role=role, full_name=full_name)
+        admin = Admin.objects.create(role=role_instance, full_name=full_name)
         usr = User.objects.create_user(username=email, email=email)
         usr.set_password(password)
         usr.save()

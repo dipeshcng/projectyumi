@@ -10,8 +10,8 @@ def validate_email(email):
 def validate_password(value):
     if value.isalnum():
         raise serializers.ValidationError({'error' : 'password must have atleast one special character.'})
-    if len(value) < 6:
-        raise serializers.ValidationError({'error' : 'password minimum length is 6 character.'})
+    # if len(value) < 6:
+    #     raise serializers.ValidationError({'error' : 'password minimum length is 6 character.'})
     return value
 
 
