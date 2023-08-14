@@ -89,23 +89,23 @@ WSGI_APPLICATION = 'projectyumi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 if DEBUG:
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.sqlite3',
-    #         'NAME': BASE_DIR / 'db.sqlite3',
-    #     }
-    # }
-
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'dbyumi', 
-            'USER': 'postgres',
-            'PASSWORD': 'admin',
-            'HOST': 'localhost', 
-            'PORT': '5432',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': 'dbyumi', 
+    #         'USER': 'postgres',
+    #         'PASSWORD': 'admin',
+    #         'HOST': 'localhost', 
+    #         'PORT': '5432',
+    #     }
+    # }
 else:
     DATABASE_URL = "postgres://projectyumiapi_user:SRBBy1ReixiMoqyvWIZLB6JJhrpKpx14@dpg-cinmhot9aq06u3iaco7g-a.oregon-postgres.render.com/projectyumiapi".replace("\'", "")
 

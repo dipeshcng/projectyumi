@@ -79,7 +79,7 @@ class Volunteer(TimeStamp):
 
 
 class Resume(TimeStamp):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(GraduatesDetail, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, null=True, blank=True)
     resume = models.FileField(upload_to='resume')
 

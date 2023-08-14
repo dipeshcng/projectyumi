@@ -1,5 +1,6 @@
 from datetime import date
 
 def calculate_age(born):
+    birth = date.fromisoformat(born)
     today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))

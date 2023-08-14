@@ -9,7 +9,7 @@ class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-
+        
 #Business classes serializer 
 class BusinessRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
@@ -50,11 +50,11 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessDetail
         fields = ['id', 'name_of_business', 'business_contact', 'location', 'business_logo']
-        read_fields = ['id', 'name_of_business', ]
+        read_only_fields = ['id', 'name_of_business', 'business_logo']
 
         def update(self, instance, validated_data):
-            instance.name_of_business = validated_data.get('name_of_business', instance.name_of_business)
-            instance.business_logo = validated_data.get('business_logo', instance.business_logo)
+            instance.business_contact = validated_data.get('business_contact', instance.business_contact)
+            instance.location = validated_data.get('location', instance.location)
             instance.save()
             return instance
     
@@ -67,10 +67,10 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
 class GraduateRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
-    
+    resume = serializers.FileField()
     class Meta:
         model = GraduatesDetail
-        fields = ["full_name", "dob", "email", "password", "phone", "image"]
+        fields = ["full_name", "dob", "email", "password", "phone", "image", "resume"]
 
     def create(self, validated_data):
         role_instance, created = Role.objects.get_or_create(role_type = 'graduate')
@@ -85,12 +85,14 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         age = calculate_age(dob)
         phone = validated_data['phone']
         image = validated_data['image']
+        resume = validated_data['resume']
         grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image, role=role_instance)
         usr = User.objects.create_user(username=email, email=email)
         usr.set_password(password)
         usr.save()
         grad.user = usr
         grad.save()
+        resume = Resume.objects.create(user=grad, resume=resume)
         return validated_data
     
 
@@ -103,10 +105,20 @@ class Graduateprofileserializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
+    
+    
 
 
+class ResumeSerializer(serializers.ModelSerializer):
+    user = Graduateprofileserializer(read_only=True)
+    class Meta:
+        model = Resume
+        fields = ['resume', 'user']
 
-
+    def get_resume(self, obj):
+        return self.context['request'].build_absolute_uri(obj.resume.url)
+    
+    
 #volunteer serializer
 class VolunteerRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()

@@ -3,3 +3,5 @@ venv
 *.env
 .env
 build_files
+/venv
+./venv

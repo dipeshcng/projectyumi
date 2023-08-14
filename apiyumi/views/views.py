@@ -58,17 +58,14 @@ class BusinessProfileAPIView(APIView):
                 'messsage' : 'server error'})
     
     def patch(self, request, *args, **kwargs):
-        print(request.data, '===============')
         usr = request.user
         item = usr.businessdetail.id
         qset =  BusinessDetail.objects.get(id=item)
-        image = request.data['business_logo']
         serializer = BusinessProfileSerializer(qset,data=request.data, partial=True)
         if serializer.is_valid():
-            print(serializer.validated_data)
             serializer.save()
             role = 'host business'
-            # Profile_Update_email(usr.username, role)
+            Profile_Update_email(usr.username, role)
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'update success'
@@ -103,15 +100,16 @@ class GraduateRegistrationAPIView(APIView):
             }
             return Response(resp)
 
+
 class GraduateProfileAPIView(APIView):
     permission_classes = [GraduateOnlyPermission]
 
     def get(self, request):
         usr = request.user
         item = usr.graduatesdetail.id
-        qset =  GraduatesDetail.objects.get(id=item)
-        serializer = Graduateprofileserializer(qset, context={'request':request})
-        dob = qset.dob
+        qset =  Resume.objects.get(user=item)
+        serializer = ResumeSerializer(qset, context={'request':request})
+        dob = serializer.data['user']['dob']
         age = calculate_age(dob)
         data = serializer.data
         data['age'] = age
