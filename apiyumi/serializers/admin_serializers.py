@@ -21,7 +21,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
         password = validate_password(validated_data['password'])
         full_name = validated_data['full_name']
         admin = Admin.objects.create(role=role_instance, full_name=full_name)
-        usr = User.objects.create_user(username=email, email=email)
+        usr = User.objects.create_user(username=email, email=email, first_name=full_name)
         usr.set_password(password)
         usr.save()
         admin.user = usr

@@ -16,7 +16,7 @@ class BusinessOnlyPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         try:
-            usr = user.businessdetail
+            usr = user.hostbusiness
             if usr.status == "Active":
                 has_perm = True
             else:
@@ -26,12 +26,14 @@ class BusinessOnlyPermission(permissions.BasePermission):
             has_perm = False
         return has_perm
 
+
+
 class GraduateOnlyPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         user = request.user
         try:
-            usr = user.graduatesdetail
+            usr = user.graduate
             if usr.status == "Active":
                 has_perm = True
             else:

@@ -20,7 +20,7 @@ class Role(TimeStamp):
     
 
 class Admin(TimeStamp):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='admin')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
 
@@ -30,7 +30,7 @@ class Admin(TimeStamp):
 
 
 class BusinessDetail(TimeStamp):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, related_name='hostbusiness')
     role = models.ForeignKey(Role,on_delete=models.CASCADE)
 
     #for business
@@ -49,7 +49,7 @@ class BusinessDetail(TimeStamp):
 
 
 class GraduatesDetail(TimeStamp):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='graduate')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
      #For Graduates
@@ -64,7 +64,7 @@ class GraduatesDetail(TimeStamp):
 
 
 class Volunteer(TimeStamp):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='volunteer')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
     full_name = models.CharField(max_length=100)
@@ -84,4 +84,42 @@ class Resume(TimeStamp):
     resume = models.FileField(upload_to='resume')
 
     def __str__(self):
-        return f'{self.user} resume for {self.title}'
+        return f'{self.user} resume'
+
+
+class Job(TimeStamp):
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    title = models.CharField(max_length=50)
+    salary_type = models.CharField(max_length=30, choices=SALARY_STATUS)
+    salary = models.PositiveBigIntegerField(default=0)
+    no_of_hires = models.PositiveIntegerField()
+    requirements = models.TextField()
+    application_start_date = models.DateField()
+    application_end_date = models.DateField()
+    location = models.CharField(max_length=100)
+    description = models.FileField(null=True, blank=True)
+
+    applied_by = models.ManyToManyField(User, related_name='job_applied_by')
+    resume = models.ManyToManyField(Resume, blank=True, related_name="job_resume")
+
+    def __str__(self):
+        return self.title
+
+
+class Event(TimeStamp):
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_created_by')
+
+    event_name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    description = models.TextField()
+    event_start_date = models.DateTimeField(null=True, blank=True)
+    event_end_date = models.DateTimeField(null=True, blank=True)
+
+    event_post_end_date = models.DateField(null=True, blank=True)
+
+    registered_by = models.ManyToManyField(User, related_name="event_registed_by")
+
+    def __str__(self):
+        return self.event_name
+

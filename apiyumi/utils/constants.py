@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 
 STATUS = (
     ("Pending", "Pending"),
@@ -18,3 +20,4 @@ SALARY_STATUS = (
     ("Paid", "Paid"),
     ("Unpaid", "Unpaid")
 )
+
