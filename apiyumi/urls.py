@@ -5,7 +5,7 @@ from .views.reset_password import UserResetPasswordRequestEmailAPIView, UserPass
 
 from apiyumi.views.login import UserLoginAPIView
 from rest_framework import routers
-from apiyumi.views.admin_views import AdminRegistrationAPIView, AdminProfileView
+from apiyumi.views.admin_views import *
 
 # router = routers.DefaultRouter()
 # router.register('', views.BusinessregistrationAPIView)
@@ -63,4 +63,15 @@ urlpatterns = [
     path('api/v1/job-list/', JobListAPIView.as_view()),
     path('api/v1/job/<int:pk>/details/', JobDetailAPIView.as_view()),
     path('api/v1/job/<int:pk>/register/', JobRegisterAPIView.as_view()),
+
+    #end-points for admin for list of businessdetail, volunteer and graduate
+    path('api/v1/business/', BusinessListForAdminAPIView.as_view()),
+    path('api/v1/volunteer/', VolunteerListForAdminAPIView.as_view()),
+    path('api/v1/graduate/', GraduateListForAdminAPIView.as_view()),
+
+    #end-points for admin for detail and update of businessdetail, volunteer and graduate
+    path('api/v1/business/<int:pk>/', BusinessListForAdminAPIView.as_view()),
+    path('api/v1/volunteer/<int:pk>/', VolunteerListForAdminAPIView.as_view()),
+    path('api/v1/graduate/<int:pk>/', GraduateListForAdminAPIView.as_view()),
+
 ]

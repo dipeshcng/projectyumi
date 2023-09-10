@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["yumi-api.onrender.com", "localhost"]
+ALLOWED_HOSTS = ["yumi-api.onrender.com", "localhost", "*"]
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     #third-party packages
     'rest_framework',
     "corsheaders",
+    "storages",
 
     #installed apps
     'apiyumi',
@@ -101,8 +102,8 @@ if DEBUG:
     #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
     #         'NAME': 'dbyumi', 
     #         'USER': 'postgres',
-    #         'PASSWORD': 'admin',
-    #         'HOST': 'localhost', 
+    #         'PASSWORD': 'admindbyumi321',
+    #         'HOST': 'dbyumi.crbhnt277v43.ap-southeast-2.rds.amazonaws.com', 
     #         'PORT': '5432',
     #     }
     # }
@@ -143,14 +144,26 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = '/mediafiles/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-MEDIA_ROOT = os.path.join(BASE_DIR,'media') 
-MEDIA_URL = '/media/'
+# Static files
+# USE_S3 = os.getenv('USE_S3') == 'TRUE'
 
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
-STATIC_URL = '/static/'
+# if USE_S3:
+    # AWS Settings
+# AWS_ACCESS_KEY_ID = 'AKIAQHIEY6XJ2XBEOSH6 '
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'mediayumi'
+# AWS_S3_SIGNATURE_NAME = 's3v4',
+# AWS_S3_REGION_NAME = 'ap-southeast-2'
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_DEFAULT_ACL =  None
+# AWS_S3_VERITY = True
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'  
+
 
 
 # Default primary key field type
@@ -183,3 +196,4 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+

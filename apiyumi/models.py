@@ -35,7 +35,7 @@ class BusinessDetail(TimeStamp):
 
     #for business
     name_of_business = models.CharField(max_length=100)
-    business_logo = models.ImageField(upload_to='business/logo', null=True, blank=True)
+    business_logo = models.ImageField(null=True, blank=True)
     business_contact = models.CharField(max_length=15)
     location = models.CharField(max_length=100)
     number_of_employee = models.IntegerField(null=True, blank=True)

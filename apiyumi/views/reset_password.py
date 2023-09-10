@@ -8,7 +8,7 @@ from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnico
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
 from django.urls import reverse
-from apiyumi.utils.email import Util
+# from apiyumi.utils.email import Util
 from rest_framework import status
 from apiyumi.utils.permissions import loginRequiredPermission, BusinessOnlyPermission, VolunteerOnlyPermission, SuperAdminOnlyPermission
 

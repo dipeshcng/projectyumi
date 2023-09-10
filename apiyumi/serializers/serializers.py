@@ -49,8 +49,8 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
 class BusinessProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessDetail
-        fields = ['id', 'name_of_business', 'business_contact', 'location', 'business_logo']
-        read_only_fields = ['id', 'name_of_business', 'business_logo']
+        fields = ['id', 'name_of_business', 'business_contact', 'location', 'business_logo', 'created_at']
+        read_only_fields = ['id', 'name_of_business', 'business_logo', 'created_at']
 
         def update(self, instance, validated_data):
             instance.business_contact = validated_data.get('business_contact', instance.business_contact)
@@ -60,6 +60,7 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
     
         def get_business_logo(self, obj):
             return self.context['request'].build_absolute_uri(obj.business_logo.url)
+
 
 
 
@@ -106,7 +107,7 @@ class Graduateprofileserializer(serializers.ModelSerializer):
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
     
-    
+
 
 
 class ResumeSerializer(serializers.ModelSerializer):
@@ -241,7 +242,6 @@ class JobListDetailSerializer(serializers.ModelSerializer):
         return self.context['request'].build_absolute_uri(obj.description.url)
     
     def get_creator(self, obj):
-        import pdb;pdb.set_trace()
         if hasattr(obj.posted_by, 'hostbusiness'):
             creator_instance = obj.posted_by.hostbusiness.name_of_business
         else:

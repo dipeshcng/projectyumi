@@ -7,7 +7,7 @@ from ..utils.permissions import *
 from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
-from apiyumi.utils.email import signup_email, Profile_Update_email
+from apiyumi.utils.email import SignUpEmailThread, ProfileUpdateEmailThread
 from apiyumi.utils.utils import calculate_age
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework import generics
@@ -24,7 +24,7 @@ class BusinessregistrationAPIView(APIView):
             user_email = serializer.validated_data['email']
             serializer.save()
             role = 'host business'
-            signup_email(user_email, role)
+            SignUpEmailThread(user_email, role).start()
             resp = {
                 'status':status.HTTP_201_CREATED,
                 'message' : 'created',
@@ -62,10 +62,11 @@ class BusinessProfileAPIView(APIView):
         item = usr.hostbusiness.id
         qset =  BusinessDetail.objects.get(id=item)
         serializer = BusinessProfileSerializer(qset,data=request.data, partial=True)
+
         if serializer.is_valid():
             serializer.save()
             role = 'host business'
-            Profile_Update_email(usr.username, role)
+            ProfileUpdateEmailThread(usr.username, role).start()
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'update success'
@@ -88,7 +89,7 @@ class GraduateRegistrationAPIView(APIView):
             user_email = serializer.validated_data['email']
             serializer.save()
             role = 'graduate'
-            signup_email(user_email,role)
+            SignUpEmailThread(user_email,role).start()           
             resp = {
                 'status': status.HTTP_201_CREATED,
                 'data': 'created'
@@ -125,10 +126,11 @@ class GraduateProfileAPIView(APIView):
         item = usr.graduate.id
         qset =  GraduatesDetail.objects.get(id=item)
         serializer = Graduateprofileserializer(qset,data=request.data, partial=True)
+
         if serializer.is_valid():
             serializer.save()
             role = 'graduate'
-            Profile_Update_email(usr.username, role)
+            ProfileUpdateEmailThread(usr.username, role).start()
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'update success'
@@ -143,7 +145,6 @@ class GraduateProfileAPIView(APIView):
 
 
 #volunteer registration, profile, update view
-
 class volunteerRegistrationView(APIView):
     permission_classes = [AllowAny]
 
@@ -153,7 +154,7 @@ class volunteerRegistrationView(APIView):
             user_email = serializer.validated_data['email']
             serializer.save()
             role = 'volunteer'
-            signup_email(user_email, role)
+            SignUpEmailThread(user_email, role).start()
             res = {
                 'status' : status.HTTP_201_CREATED,
                 'message' : 'created',
@@ -170,7 +171,7 @@ class volunteerRegistrationView(APIView):
     
 
 class VolunteerProfileAPIView(APIView):
-    permission_classes = [VolunteerOnlyPermission, ]
+    permission_classes = [VolunteerOnlyPermission]
 
     def get(self, request):
         usr = request.user
@@ -185,7 +186,6 @@ class VolunteerProfileAPIView(APIView):
         return Response(resp)
     
     def patch(self, request):
-        print(request.FILES)
         usr = request.user
         item = usr.volunteer.id
         qset =  Volunteer.objects.get(id=item)
@@ -193,7 +193,7 @@ class VolunteerProfileAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             role = 'volunteer'
-            Profile_Update_email(usr.username, role)
+            ProfileUpdateEmailThread(usr.username, role).start()
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'update success'
@@ -254,13 +254,16 @@ class EventListAPIView(APIView):
 
     def get(self, request):
         try:
-            event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))
+            usr = request.user
+            if hasattr(usr, 'volunteer') | hasattr(usr, 'graduate'):
+                event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))
+            else:
+                event_list = Event.objects.all().order_by('-created_at')
             serializer = EventListSerialzer(event_list, many=True)
             res = {
                 'status' : status.HTTP_200_OK,
                 'message': 'success',
                 'data' : serializer.data
-
             }
         except Exception as e:
             res = {
