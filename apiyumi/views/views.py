@@ -255,15 +255,23 @@ class EventListAPIView(APIView):
     def get(self, request):
         try:
             usr = request.user
+            limit = int(request.query_params.get('limit', 10))
+            offset = int(request.query_params.get('offset', 0))
+            next_offset = offset + limit
+            prev_offset = offset - limit
             if hasattr(usr, 'volunteer') | hasattr(usr, 'graduate'):
-                event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))
+                event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))[offset:offset + limit]
             else:
-                event_list = Event.objects.all().order_by('-created_at')
+                event_list = Event.objects.all().order_by('-created_at')[offset:offset + limit]
+            total_count = event_list.count()
             serializer = EventListSerialzer(event_list, many=True)
             res = {
                 'status' : status.HTTP_200_OK,
                 'message': 'success',
-                'data' : serializer.data
+                'data' : serializer.data,
+                'next': request.build_absolute_uri(f'?limit={limit}&offset={next_offset}') if next_offset < total_count else None,
+                'previous': request.build_absolute_uri(f'?limit={limit}&offset={prev_offset}') if prev_offset >= 0 else None,
+                'count': total_count,
             }
         except Exception as e:
             res = {

@@ -1,0 +1,37 @@
+@api_view(['GET'])
+def paginated_list(request):
+    limit = int(request.query_params.get('limit', 10))  # Default to 10 if not specified
+    offset = int(request.query_params.get('offset', 0))
+    queryset = YourModel.objects.all()[offset:offset + limit]
+    serializer = YourModelSerializer(queryset, many=True)
+    next_offset = offset + limit
+    prev_offset = offset - limit
+    total_count = YourModel.objects.count()
+
+    data = {
+        'results': serializer.data,
+        'next': request.build_absolute_uri(f'?limit={limit}&offset={next_offset}') if next_offset < total_count else None,
+        'previous': request.build_absolute_uri(f'?limit={limit}&offset={prev_offset}') if prev_offset >= 0 else None,
+        'count': total_count,
+    }
+    return Response(data)
+
+
+
+class YourModelListView(APIView):
+    def get(self, request):
+        limit = int(request.query_params.get('limit', 10))  # Default to 10 if not specified
+        offset = int(request.query_params.get('offset', 0))
+        queryset = YourModel.objects.all()[offset:offset + limit]
+        serializer = YourModelSerializer(queryset, many=True)
+        next_offset = offset + limit
+        prev_offset = offset - limit
+        total_count = YourModel.objects.count()
+
+        data = {
+            'results': serializer.data,
+            'next': request.build_absolute_uri(f'?limit={limit}&offset={next_offset}') if next_offset < total_count else None,
+            'previous': request.build_absolute_uri(f'?limit={limit}&offset={prev_offset}') if prev_offset >= 0 else None,
+            'count': total_count,
+        }
+        return Response(data)

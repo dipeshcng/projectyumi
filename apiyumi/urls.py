@@ -3,7 +3,7 @@ from .views.views import *
 from .views.reset_password import UserResetPasswordRequestEmailAPIView, UserPasswordTokenCheckAPI, UserSetNewPasswordAPIView, \
     UserPasswordChangeAPIView
 
-from apiyumi.views.login import UserLoginAPIView
+from apiyumi.views.login import UserLoginAPIView, DecodeTokenView, DecodeTokenForSingleUserView
 from rest_framework import routers
 from apiyumi.views.admin_views import *
 
@@ -15,6 +15,8 @@ app_name = 'apiyumi'
 urlpatterns = [
     #Login
     path('api/v1/auth/login/', UserLoginAPIView.as_view()),
+    # path('api/v1/auth/account/', DecodeTokenView.as_view()),
+    path('api/v1/auth/account/', DecodeTokenForSingleUserView.as_view()),
 
     #reset password
     path('api/v1/user/request-reset-email/', UserResetPasswordRequestEmailAPIView.as_view()),
@@ -25,7 +27,7 @@ urlpatterns = [
     path('api/v1/user/password-change/', UserPasswordChangeAPIView.as_view()),
     
     #admin
-    path('api/v1/auth/admin/registration', AdminRegistrationAPIView.as_view()),
+    path('api/v1/auth/admin/registration/', AdminRegistrationAPIView.as_view()),
     path('api/v1/admin/profile/', AdminProfileView.as_view()),
 
 

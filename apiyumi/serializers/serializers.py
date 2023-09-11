@@ -9,6 +9,16 @@ class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
+
+class UserDataSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    roles = serializers.ListField()
+
+    def to_representation(self, instance):
+        return {
+            'email': instance.email,
+        }
+
         
 #Business classes serializer 
 class BusinessRegistrationSerializer(serializers.ModelSerializer):
@@ -192,7 +202,7 @@ class EventCreateSerializer(serializers.ModelSerializer):
 class EventListSerialzer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['event_name','event_start_date', 'event_end_date']
+        fields = ['id','event_name','event_start_date', 'event_end_date']
 
 
 class EventDetailSerialzer(serializers.ModelSerializer):

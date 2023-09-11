@@ -82,3 +82,72 @@ class UserLoginAPIView(APIView):
                 "message": "Invalid credentials provided.."
             }
         return Response(resp)
+    
+
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import TokenError
+from django.contrib.auth.models import User
+
+class DecodeTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            users = User.objects.all()
+
+            # Create a list of serialized user data
+            serialized_users = []
+            for user in users:
+                if hasattr(user, 'admin'):
+                    role = ['admin']
+                elif hasattr(user, 'volunteer'):
+                    role = ['volunteer']
+                elif hasattr(user, 'graduate'):
+                    role = ['graduate']
+                elif hasattr(user, 'hostbusiness'):
+                    role = ['host business']
+                else:
+                    role = ['superadmin']
+
+                serialized_data = {
+                    'email': user.username,
+                    'role' : role
+                    
+                }
+                serialized_users.append(serialized_data)
+
+            return Response(serialized_users)
+
+        except TokenError as e:
+            return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class DecodeTokenForSingleUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # serialized_user = []
+            user = request.user
+            if hasattr(user, 'admin'):
+                role = ['admin']
+            elif hasattr(user, 'volunteer'):
+                role = ['volunteer']
+            elif hasattr(user, 'graduate'):
+                role = ['graduate']
+            elif hasattr(user, 'hostbusiness'):
+                role = ['host business']
+            else:
+                role = ['superadmin']
+
+            serialized_data = {
+                'email': user.username,
+                'roles' : role
+                
+            }
+            # serialized_user.append(serialized_data)
+            return Response(serialized_data)
+
+        except TokenError as e:
+            return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
