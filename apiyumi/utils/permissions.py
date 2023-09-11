@@ -6,10 +6,8 @@ from rest_framework.response import Response
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
-    return {
-        # 'refresh_token': str(refresh),
-        str(refresh.access_token)
-    }
+    return str(refresh.access_token)
+    
 
 class BusinessOnlyPermission(permissions.BasePermission):
 

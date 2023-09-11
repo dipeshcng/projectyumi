@@ -81,7 +81,7 @@ class UserLoginAPIView(APIView):
             resp = {
                 "message": "Invalid credentials provided.."
             }
-        return Response(resp)
+        return Response({'access_token' : resp})
     
 
 from rest_framework import status
