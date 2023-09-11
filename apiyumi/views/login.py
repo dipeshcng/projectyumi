@@ -100,19 +100,19 @@ class DecodeTokenView(APIView):
             serialized_users = []
             for user in users:
                 if hasattr(user, 'admin'):
-                    role = ['admin']
+                    role = ['ADMIN']
                 elif hasattr(user, 'volunteer'):
-                    role = ['volunteer']
+                    role = [' VOLUNTEER']
                 elif hasattr(user, 'graduate'):
-                    role = ['graduate']
+                    role = ['GRADUATE']
                 elif hasattr(user, 'hostbusiness'):
-                    role = ['host business']
+                    role = ['BUSINESS']
                 else:
-                    role = ['superadmin']
+                    role = ['SUPERADMIN']
 
                 serialized_data = {
                     'email': user.username,
-                    'role' : role
+                    'roles' : role
                     
                 }
                 serialized_users.append(serialized_data)
@@ -131,15 +131,15 @@ class DecodeTokenForSingleUserView(APIView):
             # serialized_user = []
             user = request.user
             if hasattr(user, 'admin'):
-                role = ['admin']
+                role = ['ADMIN']
             elif hasattr(user, 'volunteer'):
-                role = ['volunteer']
+                role = ['VOLUNTEER']
             elif hasattr(user, 'graduate'):
-                role = ['graduate']
+                role = ['GRADUATE']
             elif hasattr(user, 'hostbusiness'):
-                role = ['host business']
+                role = ['BUSINESS']
             else:
-                role = ['superadmin']
+                role = ['SUPERADMIN']
 
             serialized_data = {
                 'email': user.username,

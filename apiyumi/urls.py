@@ -15,7 +15,7 @@ app_name = 'apiyumi'
 urlpatterns = [
     #Login
     path('api/v1/auth/login/', UserLoginAPIView.as_view()),
-    # path('api/v1/auth/account/', DecodeTokenView.as_view()),
+    # path('api/v1/auth/accounts/', DecodeTokenView.as_view()),
     path('api/v1/auth/account/', DecodeTokenForSingleUserView.as_view()),
 
     #reset password
