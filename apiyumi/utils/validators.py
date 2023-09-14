@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 def validate_email(email):
         if User.objects.filter(email=email).exists():
@@ -19,3 +21,15 @@ def validate_graduate_age(value):
     if value < 16:
         raise serializers.ValidationError({'error':'graduate must be above 16 years old'})
     return value
+
+class CustomPageNumberPagination(PageNumberPagination):
+
+    def get_paginated_response(self, data):
+        return Response({
+            'page': self.page.number,
+            'page_size': self.page_size,
+            'count': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data,
+        })

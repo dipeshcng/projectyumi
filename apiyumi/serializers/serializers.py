@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from ..utils.validators import *
 from apiyumi.utils.utils import calculate_age
+from apiyumi.utils.utils import convert_date
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -24,6 +25,7 @@ class UserDataSerializer(serializers.Serializer):
 class BusinessRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
+
     class Meta:
         model = BusinessDetail
         fields = ['name_of_business', 'business_logo', 'business_contact', 
@@ -81,7 +83,7 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
     resume = serializers.FileField()
     class Meta:
         model = GraduatesDetail
-        fields = ["full_name", "dob", "email", "password", "phone", "image", "resume"]
+        fields = ["full_name", "dob", "email", "password", "phone","resume"]
 
     def create(self, validated_data):
         role_instance, created = Role.objects.get_or_create(role_type = 'graduate')
@@ -95,9 +97,9 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         dob = validated_data["dob"]
         # age = calculate_age(dob)
         phone = validated_data['phone']
-        image = validated_data['image']
+        # image = validated_data['image']
         resume = validated_data['resume']
-        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, image=image, role=role_instance)
+        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, role=role_instance)
         usr = User.objects.create_user(username=email, email=email, first_name=full_name)
         usr.set_password(password)
         usr.save()
@@ -197,13 +199,15 @@ class EventCreateSerializer(serializers.ModelSerializer):
         instance.event_end_date = validate_data.get('event_end_date', instance.event_end_date)
         instance.save()
         return instance
+    
+    
 
 
 class EventListSerialzer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id','event_name','event_start_date', 'event_end_date']
-
+    
 
 class EventDetailSerialzer(serializers.ModelSerializer):
     class Meta:

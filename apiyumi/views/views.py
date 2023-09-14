@@ -8,7 +8,7 @@ from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
 from apiyumi.utils.email import SignUpEmailThread, ProfileUpdateEmailThread
-from apiyumi.utils.utils import calculate_age
+from apiyumi.utils.utils import calculate_age, convert_date
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework import generics
 
@@ -19,7 +19,6 @@ class BusinessregistrationAPIView(APIView):
 
     def post(self, request):
         serializer = BusinessRegistrationSerializer(data=request.data)
-        
         if serializer.is_valid():
             user_email = serializer.validated_data['email']
             serializer.save()
@@ -248,30 +247,35 @@ class EventCreateUpdateAPIView(APIView):
         return Response(res)
 
 from datetime import date
-
+from apiyumi.utils.validators import CustomPageNumberPagination
 class EventListAPIView(APIView):
     permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|SuperAdminOnlyPermission|AdminOnlyPermission]
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
         try:
             usr = request.user
-            limit = int(request.query_params.get('limit', 10))
-            offset = int(request.query_params.get('offset', 0))
-            next_offset = offset + limit
-            prev_offset = offset - limit
+            paginator = self.pagination_class()
+            page_size = request.query_params.get('page_size', 10)
+            paginator.page_size = int(page_size)
             if hasattr(usr, 'volunteer') | hasattr(usr, 'graduate'):
-                event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))[offset:offset + limit]
+                event_list = Event.objects.all().order_by('-created_at').filter(status='Active', event_post_end_date__gte = str(date.today()))
             else:
-                event_list = Event.objects.all().order_by('-created_at')[offset:offset + limit]
-            total_count = event_list.count()
-            serializer = EventListSerialzer(event_list, many=True)
+                event_list = Event.objects.all().order_by('-created_at')
+            result_page = paginator.paginate_queryset(event_list, request)
+            serializer = EventListSerialzer(result_page, many=True)
+            data = {
+            'current_page': paginator.page.number,
+            'page_size': paginator.page_size,
+            'count': paginator.page.paginator.count,
+            'next': paginator.get_next_link(),
+            'previous': paginator.get_previous_link(),
+            'results': serializer.data,
+        }
             res = {
                 'status' : status.HTTP_200_OK,
                 'message': 'success',
-                'data' : serializer.data,
-                'next': request.build_absolute_uri(f'?limit={limit}&offset={next_offset}') if next_offset < total_count else None,
-                'previous': request.build_absolute_uri(f'?limit={limit}&offset={prev_offset}') if prev_offset >= 0 else None,
-                'count': total_count,
+                'data' : data
             }
         except Exception as e:
             res = {
