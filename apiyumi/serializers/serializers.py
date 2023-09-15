@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from ..utils.validators import *
 from apiyumi.utils.utils import calculate_age
 from apiyumi.utils.utils import convert_date
+from datetime import datetime, date
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -45,6 +46,8 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
         business_contact = validated_data['business_contact']
         location = validated_data['location']
         start_date = validated_data.get('start_date')
+        if start_date is None:
+            start_date = date.today()
         end_date = validated_data.get('end_date')
         bus = BusinessDetail.objects.create(name_of_business=name_of_business,business_contact=business_contact,location=location,
                                         start_date=start_date, end_date=end_date, role=role_instance, business_logo=business_logo)
@@ -80,10 +83,10 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
 class GraduateRegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(min_length=4, write_only=True, style= {'input_type':'password'})
-    resume = serializers.FileField()
+    # resume = serializers.FileField()
     class Meta:
         model = GraduatesDetail
-        fields = ["full_name", "dob", "email", "password", "phone","resume"]
+        fields = ["full_name", "dob", "email", "password", "phone"]
 
     def create(self, validated_data):
         role_instance, created = Role.objects.get_or_create(role_type = 'graduate')
@@ -98,14 +101,15 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         # age = calculate_age(dob)
         phone = validated_data['phone']
         # image = validated_data['image']
-        resume = validated_data['resume']
+        resume = validated_data.get('resume', None)
         grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, role=role_instance)
         usr = User.objects.create_user(username=email, email=email, first_name=full_name)
         usr.set_password(password)
         usr.save()
         grad.user = usr
         grad.save()
-        resume = Resume.objects.create(user=grad, resume=resume)
+        if resume is not None:
+            resume = Resume.objects.create(user=grad, resume=resume)
         return validated_data
     
 
