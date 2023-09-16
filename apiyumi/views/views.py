@@ -389,24 +389,43 @@ class JobCreateUpdateAPIView(APIView):
 
 class JobListAPIView(APIView):
     permission_classes = [GraduateOnlyPermission|AdminOnlyPermission|SuperAdminOnlyPermission|BusinessOnlyPermission]
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
-        user = request.user
-        if hasattr(user, 'graduate'):
-            job_qs = Job.objects.filter(status="Active", application_end_date__gte = str(date.today())).order_by("-created_at")
-            serializer = JobListDetailSerializer(job_qs,many=True, context={'request':request})
-        elif hasattr(user, 'hostbusiness'):
-            job_qs = Job.objects.filter(posted_by=user).order_by("-created_at")
-            serializer = JobListDetailForAdminSerializer(job_qs,many=True, context={'request':request})
-            data = serializer.data
-        else:
-            job_qs = Job.objects.all().order_by("-created_at")
-            serializer = JobListDetailForAdminSerializer(job_qs, many=True, context = {'request': request})
-            
-        res = {
-            "status" : status.HTTP_200_OK,
-            "data" : serializer.data
-        }
+        try:
+            user = request.user
+            paginator = self.pagination_class()
+            page_size = request.query_params.get('page_size', 10)
+            paginator.page_size = int(page_size)
+            if hasattr(user, 'graduate'):
+                job_qs = Job.objects.filter(status="Active", application_end_date__gte = str(date.today())).order_by("-created_at")
+                result_page = paginator.paginate_queryset(job_qs, request)
+                serializer = JobListDetailSerializer(result_page,many=True, context={'request':request})
+            elif hasattr(user, 'hostbusiness'):
+                job_qs = Job.objects.filter(posted_by=user).order_by("-created_at")
+                result_page = paginator.paginate_queryset(job_qs, request)
+                serializer = JobListDetailForAdminSerializer(result_page,many=True, context={'request':request})
+            elif hasattr(user, 'admin'):
+                job_qs = Job.objects.all().order_by("-created_at")
+                result_page = paginator.paginate_queryset(job_qs, request)
+                serializer = JobListDetailForAdminSerializer(result_page, many=True, context = {'request': request})
+            data = {
+                'current_page': paginator.page.number,
+                'page_size': paginator.page_size,
+                'count': paginator.page.paginator.count,
+                'next': paginator.get_next_link(),
+                'previous': paginator.get_previous_link(),
+                'results': serializer.data,
+            }
+            res = {
+                "status" : status.HTTP_200_OK,
+                "data" : data
+            }
+        except Exception as e:
+            res = {
+                'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'error_message' : f'{e}'
+            }
         return Response(res)
         
     
