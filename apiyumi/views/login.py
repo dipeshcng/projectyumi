@@ -63,11 +63,11 @@ class UserLoginAPIView(APIView):
                     resp = get_tokens_for_user(user)
                 elif item3.status == "Pending":
                     resp = {
-                        "message" : "Account not active yet !"
+                        "err_message" : "Account not active yet !"
                     }
                 else:
                     resp = {
-                        "message" : "Account disabled contact admin !"
+                        "err_message" : "Account disabled contact admin !"
                     }
             elif user.is_superuser:
                 resp = get_tokens_for_user(user)

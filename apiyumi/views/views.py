@@ -221,9 +221,16 @@ class EventCreateUpdateAPIView(APIView):
         serializer = EventCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response('event created')
+            res = {
+                'status' : status.HTTP_201_CREATED,
+                'message' : 'Event create success'
+            }
         else:
-            return Response(serializer.errors)
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'error_message' : serializer.errors
+            }
+        return Response(res)
     
     def patch(self, request, pk=None):
         try:

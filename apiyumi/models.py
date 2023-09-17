@@ -100,7 +100,7 @@ class Job(TimeStamp):
     location = models.CharField(max_length=100)
     description = models.FileField(null=True, blank=True)
 
-    applied_by = models.ManyToManyField(User, related_name='job_applied_by')
+    applied_by = models.ManyToManyField(User, related_name='job_applied_by', blank=True)
     resume = models.ManyToManyField(Resume, blank=True, related_name="job_resume")
 
     def __str__(self):
@@ -118,7 +118,7 @@ class Event(TimeStamp):
 
     event_post_end_date = models.DateField(null=True, blank=True)
 
-    registered_by = models.ManyToManyField(User, related_name="event_registed_by")
+    registered_by = models.ManyToManyField(User, related_name="event_registed_by", blank=True)
 
     def __str__(self):
         return self.event_name
