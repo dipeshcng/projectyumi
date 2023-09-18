@@ -8,9 +8,10 @@ from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnico
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
 from django.urls import reverse
-# from apiyumi.utils.email import Util
+from apiyumi.utils.email import Util
 from rest_framework import status
 from apiyumi.utils.permissions import loginRequiredPermission, BusinessOnlyPermission, VolunteerOnlyPermission, SuperAdminOnlyPermission
+from django.urls import reverse_lazy
 
 #reset password view
 class UserResetPasswordRequestEmailAPIView(APIView):
@@ -23,6 +24,7 @@ class UserResetPasswordRequestEmailAPIView(APIView):
             uidb64 = urlsafe_base64_encode(smart_bytes(usr.id))
             token = PasswordResetTokenGenerator().make_token(usr)
             current_site = get_current_site(request=request).domain
+            # relative_link = reverse('apiyumi:user-token-check', kwargs={'uidb64': uidb64, 'token': token})
             relative_link = reverse('apiyumi:user-token-check', kwargs={'uidb64': uidb64, 'token': token})
             absurl = 'http://'+current_site + relative_link
             email_body = 'Hello, \n Use link below to reset your password  \n' + \
@@ -73,6 +75,46 @@ class UserSetNewPasswordAPIView(APIView):
         serializer = UserSetNewPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'status': "success", 'message': 'Password reset success'})
+    
+
+from django.views.generic import FormView
+from django import forms
+from django.contrib.auth import authenticate
+
+class UserResetPasswordForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'New Password'
+    }))
+
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'New Password'
+    }))
+
+    def clean_confirm_password(self):
+        newpwd = self.cleaned_data['new_password']
+        cnfpwd = self.cleaned_data['confirm_password']
+
+        if newpwd != cnfpwd:
+            raise forms.ValidationError("Password did not match")
+        return cnfpwd
+    
+
+class UserPasswordResetPasswordView(FormView):
+    template_name = "password_reset_confirm.html"
+    form_class = UserResetPasswordForm
+    # success_url = reverse_lazy("google.com")
+
+    def form_valid(self, form):
+        password = form.cleaned_data['confirm_password']
+        uidb64 = self.kwargs['uidb64']
+        id = smart_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(id=id)
+        user.set_password(password)
+        user.save()
+        # user = authenticate(username=email, password=password)
+        return super().form_valid(form)
     
 
 

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views.views import *
 from .views.reset_password import UserResetPasswordRequestEmailAPIView, UserPasswordTokenCheckAPI, UserSetNewPasswordAPIView, \
-    UserPasswordChangeAPIView
+    UserPasswordChangeAPIView, UserPasswordResetPasswordView
 
 from apiyumi.views.login import UserLoginAPIView, DecodeTokenView, DecodeTokenForSingleUserView
 from rest_framework import routers
@@ -20,7 +20,8 @@ urlpatterns = [
 
     #reset password
     path('api/v1/user/request-reset-email/', UserResetPasswordRequestEmailAPIView.as_view()),
-    path('api/v1/user/password-reset/check/token/<uidb64>/<token>/',UserPasswordTokenCheckAPI.as_view(), name="user-token-check"),
+    # path('api/v1/user/password-reset/check/token/<uidb64>/<token>/',UserPasswordTokenCheckAPI.as_view(), name="user-token-check"),
+    path('api/v1/user/password-reset/check/token/<uidb64>/<token>/',UserPasswordResetPasswordView.as_view(), name="user-token-check"),
     path('api/v1/user/password-reset-complete/', UserSetNewPasswordAPIView.as_view(),),
 
     #change password
@@ -54,16 +55,16 @@ urlpatterns = [
     #event end-points
     path('api/v1/event/', EventCreateUpdateAPIView.as_view()),
     path('api/v1/event/<int:pk>/', EventCreateUpdateAPIView.as_view()),
-    path('api/v1/event/list/', EventListAPIView.as_view()),
-    path('api/v1/event/detail/<int:pk>/', EventDetailAPIView.as_view()),
-    path('api/v1/event/register-unregister/<int:pk>/', RegisterUnregisterForEventAPIView.as_view()),
+    path('api/v1/event/', EventListAPIView.as_view()),
+    path('api/v1/event/<int:pk>/', EventDetailAPIView.as_view()),
+    path('api/v1/event/register/<int:pk>/', RegisterUnregisterForEventAPIView.as_view()),
 
     
     #job end-points
     path('api/v1/job/', JobCreateUpdateAPIView.as_view()),
     path('api/v1/job/<int:pk>/', JobCreateUpdateAPIView.as_view()),
-    path('api/v1/job-list/', JobListAPIView.as_view()),
-    path('api/v1/job/<int:pk>/details/', JobDetailAPIView.as_view()),
+    path('api/v1/job/', JobListAPIView.as_view()),
+    path('api/v1/job/<int:pk>/', JobDetailAPIView.as_view()),
     path('api/v1/job/<int:pk>/register/', JobRegisterAPIView.as_view()),
 
     #end-points for admin for list of businessdetail, volunteer and graduate
