@@ -53,16 +53,16 @@ urlpatterns = [
 
 
     #event end-points
-    path('api/v1/event/', EventCreateUpdateAPIView.as_view()),
-    path('api/v1/event/<int:pk>/', EventCreateUpdateAPIView.as_view()),
+    path('api/v1/admin/event/', EventCreateUpdateAPIView.as_view()),
+    path('api/v1/admin/event/<int:pk>/', EventCreateUpdateAPIView.as_view()),
     path('api/v1/event/', EventListAPIView.as_view()),
     path('api/v1/event/<int:pk>/', EventDetailAPIView.as_view()),
     path('api/v1/event/register/<int:pk>/', RegisterUnregisterForEventAPIView.as_view()),
 
     
     #job end-points
-    path('api/v1/job/', JobCreateUpdateAPIView.as_view()),
-    path('api/v1/job/<int:pk>/', JobCreateUpdateAPIView.as_view()),
+    path('api/v1/admin/job/', JobCreateUpdateAPIView.as_view()),
+    path('api/v1/admin/job/<int:pk>/', JobCreateUpdateAPIView.as_view()),
     path('api/v1/job/', JobListAPIView.as_view()),
     path('api/v1/job/<int:pk>/', JobDetailAPIView.as_view()),
     path('api/v1/job/<int:pk>/register/', JobRegisterAPIView.as_view()),
