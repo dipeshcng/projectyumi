@@ -5,6 +5,8 @@ from ..utils.permissions import SuperAdminOnlyPermission, AdminOnlyPermission
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from apiyumi.models import Admin, BusinessDetail, GraduatesDetail, Volunteer
+from datetime import date
+from apiyumi.utils.validators import CustomPageNumberPagination
 
 
 class AdminRegistrationAPIView(APIView):
@@ -54,19 +56,34 @@ class AdminProfileView(APIView):
 #List API
 class BusinessListForAdminAPIView(APIView):
     permission_classes = [SuperAdminOnlyPermission|AdminOnlyPermission]
+    pagination_class = CustomPageNumberPagination
+
 
     def get(self, request, pk=None):
         try:
             if pk is None:
+                paginator = self.pagination_class()
+                page_size = request.query_params.get('page_size', 10)
+                paginator.page_size = int(page_size)
                 qset = BusinessDetail.objects.all().order_by('-created_at')
-                serializer = BusinessProfileForAdminSerializer(qset, many=True)
+                result_page = paginator.paginate_queryset(qset, request)
+                serializer = BusinessProfileForAdminSerializer(result_page, many=True)
+                data = {
+                        'current_page': paginator.page.number,
+                        'page_size': paginator.page_size,
+                        'count': paginator.page.paginator.count,
+                        'next': paginator.get_next_link(),
+                        'previous': paginator.get_previous_link(),
+                        'results': serializer.data,
+                        }
             else:
                 qset = BusinessDetail.objects.get(id=pk)
                 serializer = BusinessProfileForAdminSerializer(qset)
+                data = serializer.data
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'success',
-                'data' : serializer.data
+                'data' : data
             }
         except Exception as e:
             res = {
@@ -100,19 +117,34 @@ class BusinessListForAdminAPIView(APIView):
 
 class GraduateListForAdminAPIView(APIView):
     permission_classes = [SuperAdminOnlyPermission|AdminOnlyPermission]
+    pagination_class = CustomPageNumberPagination
+
 
     def get(self, request, pk=None):
         try:
             if pk is None:
+                paginator = self.pagination_class()
+                page_size = request.query_params.get('page_size', 10)
+                paginator.page_size = int(page_size)
                 qset = GraduatesDetail.objects.all().order_by('-created_at')
-                serializer = GraduateDetailForAdminserializer(qset, many=True)
+                result_page = paginator.paginate_queryset(qset, request)
+                serializer = GraduateDetailForAdminserializer(result_page, many=True)
+                data = {
+                        'current_page': paginator.page.number,
+                        'page_size': paginator.page_size,
+                        'count': paginator.page.paginator.count,
+                        'next': paginator.get_next_link(),
+                        'previous': paginator.get_previous_link(),
+                        'results': serializer.data,
+                        }
             else:
                 qset = GraduatesDetail.objects.get(id=pk)
                 serializer = GraduateDetailForAdminserializer(qset)
+                data = serializer.data
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'success',
-                'data' : serializer.data
+                'data' : data
             }
         except Exception as e:
             res = {
@@ -146,19 +178,34 @@ class GraduateListForAdminAPIView(APIView):
 
 class VolunteerListForAdminAPIView(APIView):
     permission_classes = [SuperAdminOnlyPermission|AdminOnlyPermission]
+    pagination_class = CustomPageNumberPagination
 
-    def get(self, reques, pk=None):
+
+    def get(self, request, pk=None):
         try:
             if pk is None:
+                paginator = self.pagination_class()
+                page_size = request.query_params.get('page_size', 10)
+                paginator.page_size = int(page_size)
                 qset = Volunteer.objects.all().order_by('-created_at')
-                serializer = VolunteerDetailForAdminserializer(qset, many=True)
+                result_page = paginator.paginate_queryset(qset, request)
+                serializer = VolunteerDetailForAdminserializer(result_page, many=True)
+                data = {
+                        'current_page': paginator.page.number,
+                        'page_size': paginator.page_size,
+                        'count': paginator.page.paginator.count,
+                        'next': paginator.get_next_link(),
+                        'previous': paginator.get_previous_link(),
+                        'results': serializer.data,
+                        }
             else:
                 qset = Volunteer.objects.get(id=pk)
                 serializer = VolunteerDetailForAdminserializer(qset)
+                data = serializer.data
             res = {
                 'status' : status.HTTP_200_OK,
                 'message' : 'success',
-                'data' : serializer.data
+                'data' : data
             }
         except Exception as e:
             res = {
