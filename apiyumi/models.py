@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from .utils.constants import *
 from django.conf import settings
 
+from enum import IntEnum
+
+
+
 class TimeStamp(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,13 +51,20 @@ class BusinessDetail(TimeStamp):
     def __str__(self) -> str:
         return self.name_of_business
 
-
+class WorkingStatus(IntEnum):
+  UNEMPLOYED = 1
+  INTERNSHIP = 2
+  EMPLOYED = 3
+  
+  @classmethod
+  def choices(cls):
+    return [(key.value, key.name) for key in cls]
+  
 class GraduatesDetail(TimeStamp):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='graduate')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-
+    working_status = models.IntegerField(choices=WorkingStatus.choices(), default=WorkingStatus.UNEMPLOYED)
      #For Graduates
-    working_status = models.CharField(max_length=100, choices=WORKING_STATUS, default="Looking For Job")
     full_name = models.CharField(max_length=100)
     dob = models.DateField()
     image = models.ImageField(upload_to='user/graduate', null=True, blank=True)

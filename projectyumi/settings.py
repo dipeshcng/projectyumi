@@ -181,8 +181,8 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES':['rest_framework_simplejwt.authentication.JWTAuthentication', ],
     'DATE_INPUT_FORMATS': ["%d/%m/%Y"],
-    'TIME_INPUT_FORMATS': ['%H:%M'],
-    'DATETIME_INPUT_FORMATS':['%d/%m/%y %H:%M']
+    'TIME_INPUT_FORMATS': ['%h:%m'],
+    'DATETIME_INPUT_FORMATS':['%d/%m/%Y %H:%M']
 }
 
 SIMPLE_JWT = {

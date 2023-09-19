@@ -86,7 +86,7 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
     # resume = serializers.FileField()
     class Meta:
         model = GraduatesDetail
-        fields = ["full_name", "dob", "email", "password", "phone"]
+        fields = ["full_name", "dob", "email", "password", "phone", "working_status"]
 
     def create(self, validated_data):
         role_instance, created = Role.objects.get_or_create(role_type = 'graduate')
@@ -98,11 +98,12 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         password = validate_password(validated_data['password'])
         full_name = validated_data['full_name']
         dob = validated_data["dob"]
+        working_status = validated_data.get('working_status')
         # age = calculate_age(dob)
         phone = validated_data['phone']
         # image = validated_data['image']
         resume = validated_data.get('resume', None)
-        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, role=role_instance)
+        grad = GraduatesDetail.objects.create(full_name=full_name, dob=dob, phone=phone, role=role_instance, working_status=working_status)
         usr = User.objects.create_user(username=email, email=email, first_name=full_name)
         usr.set_password(password)
         usr.save()
