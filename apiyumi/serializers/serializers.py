@@ -117,7 +117,7 @@ class Graduateprofileserializer(serializers.ModelSerializer):
 
     class Meta:
         model = GraduatesDetail
-        fields = ['id', 'full_name', 'dob', 'image', 'phone']
+        fields = ['id', 'full_name', 'dob', 'image', 'phone', "working_status"]
         read_only_fields = ['id', 'dob']
 
     def get_image(self, obj):
@@ -151,7 +151,7 @@ class GraduatesDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GraduatesDetail
-        fields = ('id', 'user', 'role', 'full_name', 'dob', 'image', 'phone', 'resume_set')
+        fields = ('id', 'working_status' ,'user', 'role', 'full_name', 'dob', 'image', 'phone', 'resume_set')
     
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
@@ -205,22 +205,24 @@ class Volunteerprofileserializer(serializers.ModelSerializer):
 class EventCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['event_name', 'location', 'description', 'event_start_date', 'event_end_date']
+        fields = ['event_name', 'location', 'description', 'document','event_start_date', 'event_end_date']
     def create(self, validated_data):
         event_name = validated_data['event_name']
         location = validated_data['location']
         description = validated_data['description']
+        document = validated_data.get('document')
         event_start_date = validated_data['event_start_date']
         event_end_date = validated_data['event_end_date']
         user = self.context['request'].user
         Event.objects.create(posted_by=user, event_name=event_name, location=location, description=description, event_start_date=event_start_date, 
-                                     event_end_date=event_end_date, status='Active')
+                                     document=document,event_end_date=event_end_date, status='Active')
         return validated_data
 
     def update(self, instance, validate_data):
         instance.event_name = validate_data.get('event_name', instance.event_name)
         instance.location = validate_data.get('location', instance.location)
         instance.description = validate_data.get('description', instance.description)
+        instance.document = validate_data.get('document', instance.document)
         instance.event_start_date = validate_data.get('event_start_date', instance.event_start_date)
         instance.event_end_date = validate_data.get('event_end_date', instance.event_end_date)
         instance.save()
@@ -238,14 +240,40 @@ class EventListSerialzer(serializers.ModelSerializer):
 class EventDetailSerialzer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['event_name', 'location', 'description', 'event_start_date', 'event_end_date']
+        fields = ['id','event_name', 'location', 'description', 'document', 'event_start_date', 'event_end_date']
+    
+    def get_document(self, obj):
+        return self.context['request'].build_absolute_uri(obj.document.url)
+
+class RegisteredBySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ['username', 'full_name']
+    
+    def get_full_name(self, obj):
+        if hasattr(obj, 'volunteer'):
+            full_name = obj.volunteer.full_name
+        elif hasattr(obj, 'graduate'):
+            full_name = obj.graduate.full_name
+        else:
+            full_name = None
+        return full_name
 
 class EventDetailForAdminSerialzer(serializers.ModelSerializer):
+    registered_by = RegisteredBySerializer(read_only=True, many=True)
     class Meta:
         model = Event
-        fields = ['registered_by','event_name', 'location', 'description', 'event_start_date', 'event_end_date']
+        fields = ['id', 'event_name', 'location', 'description', 'document', 'event_start_date', 'event_end_date', 'registered_by']
 
+    def get_document(self, obj):
+        return self.context['request'].build_absolute_uri(obj.document.url)
 
+    # def get_registered_by(self, obj):
+    #     # Assuming that 'registered_by' is a ManyToMany field to the User model
+    #     # You can use this method to get the emails of all users in the 'registered_by' field
+    #     return [user.username for user in obj.registered_by.all()]
+    
 #job serializer
 class JobCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:

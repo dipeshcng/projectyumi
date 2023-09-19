@@ -129,7 +129,7 @@ class GraduateListForAdminAPIView(APIView):
                 paginator.page_size = int(page_size)
                 qset = GraduatesDetail.objects.all().order_by('-created_at')
                 result_page = paginator.paginate_queryset(qset, request)
-                serializer = GraduateDetailForAdminserializer(result_page, many=True)
+                serializer = GraduateDetailForAdminserializer(result_page, many=True, context={'request':request})
                 data = {
                         'current_page': paginator.page.number,
                         'page_size': paginator.page_size,

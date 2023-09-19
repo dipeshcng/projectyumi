@@ -7,6 +7,12 @@ STATUS = (
     ("Disabled", "Disabled")
 )
 
+WORKING_STATUS = (
+    ("Looking For Job", "Looking For Job"),
+    ("Internship", "Internship"),
+    ("Working", "Working")
+)
+
 
 USER_TYPE = (
     ("superAdmin", "superAdmin"),

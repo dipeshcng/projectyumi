@@ -60,11 +60,11 @@ class BusinessProfileForAdminSerializer(serializers.ModelSerializer):
 
 #Graduate
 class GraduateDetailForAdminserializer(serializers.ModelSerializer):
-
+    email = serializers.EmailField(source='user.email')
     class Meta:
         model = GraduatesDetail
-        fields = ['id', 'status', 'full_name', 'dob', 'image', 'phone', 'created_at']
-        read_only_fields = ['id', 'dob', 'created_at']
+        fields = ['id', 'status',  'email', 'full_name', 'dob', 'image', 'phone', 'created_at', 'working_status']
+        read_only_fields = ['id', 'dob', 'created_at', 'email']
 
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)

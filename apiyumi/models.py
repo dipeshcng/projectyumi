@@ -53,6 +53,7 @@ class GraduatesDetail(TimeStamp):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
      #For Graduates
+    working_status = models.CharField(max_length=100, choices=WORKING_STATUS, default="Looking For Job")
     full_name = models.CharField(max_length=100)
     dob = models.DateField()
     image = models.ImageField(upload_to='user/graduate', null=True, blank=True)
@@ -113,6 +114,7 @@ class Event(TimeStamp):
     event_name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     description = models.TextField()
+    document = models.FileField(null=True, blank=True)
     event_start_date = models.DateTimeField(null=True, blank=True)
     event_end_date = models.DateTimeField(null=True, blank=True)
 

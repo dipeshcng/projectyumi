@@ -315,7 +315,7 @@ class EventDetailAPIView(APIView):
             if hasattr(user, 'volunteer') or hasattr(user, 'graduate'):
                 event = Event.objects.get(id=pk)
                 if event.status == "Active" and event.event_post_end_date >= date.today():
-                    serializer = EventDetailSerialzer(event)
+                    serializer = EventDetailSerialzer(event, context={'request':request})
                     if user in event.registered_by.all():
                         res = {
                             'status' : status.HTTP_200_OK,
@@ -337,7 +337,7 @@ class EventDetailAPIView(APIView):
                         }
             else:
                 event = Event.objects.get(id=pk)
-                serializer = EventDetailForAdminSerialzer(event)
+                serializer = EventDetailForAdminSerialzer(event, context={'request':request})
                 res = {
                     'status' : status.HTTP_200_OK,
                     'message' : 'success',
