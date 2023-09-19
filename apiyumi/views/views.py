@@ -104,21 +104,34 @@ class GraduateRegistrationAPIView(APIView):
 class GraduateProfileAPIView(APIView):
     permission_classes = [GraduateOnlyPermission]
 
+    # def get(self, request):
+    #     usr = request.user
+    #     item = usr.graduate.id
+    #     qset =  Resume.objects.get(user=item)
+    #     serializer = ResumeSerializer(qset, context={'request':request})
+    #     dob = serializer.data['user']['dob']
+    #     age = calculate_age(dob)
+    #     data = serializer.data
+    #     data['age'] = age
+    #     resp = {
+    #         'status':status.HTTP_200_OK,
+    #         'message' : 'success',
+    #         'data' : data
+    #     }
+    #     return Response(resp)
+
     def get(self, request):
         usr = request.user
-        item = usr.graduate.id
-        qset =  Resume.objects.get(user=item)
-        serializer = ResumeSerializer(qset, context={'request':request})
-        dob = serializer.data['user']['dob']
-        age = calculate_age(dob)
-        data = serializer.data
-        data['age'] = age
+        # resume_qs = Resume.objects.filter(user = usr)
+        grad = GraduatesDetail.objects.get(user=usr)
+        serializer = GraduatesDetailSerializer(grad, context={'request':request})
         resp = {
             'status':status.HTTP_200_OK,
             'message' : 'success',
-            'data' : data
-        }
+            'data' : serializer.data
+            }
         return Response(resp)
+
     
     def patch(self, request):
         usr = request.user

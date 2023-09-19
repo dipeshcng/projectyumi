@@ -135,6 +135,28 @@ class ResumeSerializer(serializers.ModelSerializer):
     def get_resume(self, obj):
         return self.context['request'].build_absolute_uri(obj.resume.url)
     
+
+# serializers.py
+
+class ResumeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = ('id', 'title', 'resume')
+    
+    def get_resume(self, obj):
+        return self.context['request'].build_absolute_uri(obj.resume.url)
+
+class GraduatesDetailSerializer(serializers.ModelSerializer):
+    resume_set = ResumeListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = GraduatesDetail
+        fields = ('id', 'user', 'role', 'full_name', 'dob', 'image', 'phone', 'resume_set')
+    
+    def get_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.image.url)
+
+    
     
 #volunteer serializer
 class VolunteerRegistrationSerializer(serializers.ModelSerializer):
@@ -253,7 +275,7 @@ class JobListDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['creator', 'title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
+        fields = ['id','creator', 'title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
                   'application_end_date', 'location', 'description']
         
     def get_description(self, obj):
