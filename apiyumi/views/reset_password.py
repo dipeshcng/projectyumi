@@ -99,22 +99,27 @@ class UserResetPasswordForm(forms.Form):
         if newpwd != cnfpwd:
             raise forms.ValidationError("Password did not match")
         return cnfpwd
-    
 
+from django.http import HttpResponse
+from django.shortcuts import redirect
 class UserPasswordResetPasswordView(FormView):
     template_name = "password_reset_confirm.html"
     form_class = UserResetPasswordForm
     # success_url = reverse_lazy("google.com")
 
     def form_valid(self, form):
-        password = form.cleaned_data['confirm_password']
         uidb64 = self.kwargs['uidb64']
+        token = self.kwargs['token']
+        password = form.cleaned_data['confirm_password']
         id = smart_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(id=id)
-        user.set_password(password)
-        user.save()
-        # user = authenticate(username=email, password=password)
-        return super().form_valid(form)
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            html= "Token invalid please request fro new token  " + '<a href="https://project-yumi-v2.vercel.app/auth/reset-password/">reset password</a>'
+            return HttpResponse(html)
+        else:
+            user.set_password(password)
+            user.save()
+            return redirect('https://project-yumi-v2.vercel.app/')
     
 
 
