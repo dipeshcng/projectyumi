@@ -77,4 +77,8 @@ urlpatterns = [
     path('api/v1/volunteer/<int:pk>/', VolunteerListForAdminAPIView.as_view()),
     path('api/v1/graduate/<int:pk>/', GraduateListForAdminAPIView.as_view()),
 
+
+    #
+    path('api/v1/total/counts/', TotalNumberObjectsAPIView.as_view()),
+
 ]

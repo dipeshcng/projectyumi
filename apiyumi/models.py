@@ -51,19 +51,19 @@ class BusinessDetail(TimeStamp):
     def __str__(self) -> str:
         return self.name_of_business
 
-class WorkingStatus(IntEnum):
-  UNEMPLOYED = 1
-  INTERNSHIP = 2
-  EMPLOYED = 3
+# class WorkingStatus(IntEnum):
+#   LookingForJob = 1
+#   Internship = 2
+#   Working = 3
   
-  @classmethod
-  def choices(cls):
-    return [(key.value, key.name) for key in cls]
+#   @classmethod
+#   def choices(cls):
+#     return [(key.value, key.name) for key in cls]
   
 class GraduatesDetail(TimeStamp):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='graduate')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    working_status = models.IntegerField(choices=WorkingStatus.choices(), default=WorkingStatus.UNEMPLOYED)
+    working_status = models.IntegerField(choices=WORKING_STATUS, default=1)
      #For Graduates
     full_name = models.CharField(max_length=100)
     dob = models.DateField()

@@ -4,7 +4,7 @@ from apiyumi.serializers.admin_serializers import *
 from ..utils.permissions import SuperAdminOnlyPermission, AdminOnlyPermission
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from apiyumi.models import Admin, BusinessDetail, GraduatesDetail, Volunteer
+from apiyumi.models import Admin, BusinessDetail, GraduatesDetail, Volunteer, Job, Event
 from datetime import date
 from apiyumi.utils.validators import CustomPageNumberPagination
 
@@ -236,5 +236,30 @@ class VolunteerListForAdminAPIView(APIView):
             res = {
                 'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
                 'message' : f'{e}'
+            }
+        return Response(res)
+
+
+class TotalNumberObjectsAPIView(APIView):
+    permission_classes = [SuperAdminOnlyPermission|AdminOnlyPermission]
+    def get(self, request):
+        try:
+            jobs = Job.objects.all().count()
+            business = BusinessDetail.objects.all().count()
+            volunters = Volunteer.objects.all().count()
+            graduates = GraduatesDetail.objects.all().count()
+            events = Event.objects.all().count()
+            res = {
+                "status" : status.HTTP_200_OK,
+                "total_jobs" : jobs,
+                "total_events" : events,
+                "total_business" : business,
+                "total_volunteers" : volunters,
+                "total_graduates" : graduates
+            }
+        except Exception as e:
+            res = {
+                "status" : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "err_msg" : F'{e}'
             }
         return Response(res)

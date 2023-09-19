@@ -43,10 +43,11 @@ class AdminProfileserialzer(serializers.ModelSerializer):
 
 #Business
 class BusinessProfileForAdminSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email')
     class Meta:
         model = BusinessDetail
-        fields = ['id', 'status', 'name_of_business', 'business_contact', 'location', 'business_logo', 'created_at']
-        read_only_fields = ['id', 'name_of_business', 'business_logo', 'created_at']
+        fields = ['id', 'status', 'name_of_business', 'email', 'business_contact', 'location', 'business_logo', 'created_at']
+        read_only_fields = ['id', 'name_of_business', 'business_logo', 'created_at', 'email']
 
         def update(self, instance, validated_data):
             instance.business_contact = validated_data.get('business_contact', instance.business_contact)
@@ -72,10 +73,11 @@ class GraduateDetailForAdminserializer(serializers.ModelSerializer):
 
 #Volunteer
 class VolunteerDetailForAdminserializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email')
     class Meta:
         model = Volunteer
-        fields = ['id', 'status', 'full_name','image', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'status', 'full_name', 'email', 'image', 'created_at']
+        read_only_fields = ['id', 'created_at', 'email']
     
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
