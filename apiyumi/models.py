@@ -63,7 +63,7 @@ class BusinessDetail(TimeStamp):
 class GraduatesDetail(TimeStamp):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='graduate')
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    working_status = models.IntegerField(choices=WORKING_STATUS, default=1)
+    working_status = models.CharField(max_length=100,choices=WORKING_STATUS, default="Looking for job", null=True, blank=True)
      #For Graduates
     full_name = models.CharField(max_length=100)
     dob = models.DateField()

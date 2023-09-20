@@ -81,4 +81,8 @@ urlpatterns = [
     #
     path('api/v1/total/counts/', TotalNumberObjectsAPIView.as_view()),
 
+    #resume
+    path('api/v1/resume/', ResumeCreateAPIView.as_view()),
+    path('api/v1/resume/<int:pk>/', ResumeCreateAPIView.as_view()),
+
 ]

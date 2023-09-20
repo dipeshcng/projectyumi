@@ -99,6 +99,8 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
         full_name = validated_data['full_name']
         dob = validated_data["dob"]
         working_status = validated_data.get('working_status')
+        if working_status is None:
+            working_status = "Looking for job"
         # age = calculate_age(dob)
         phone = validated_data['phone']
         # image = validated_data['image']
@@ -113,13 +115,20 @@ class GraduateRegistrationSerializer(serializers.ModelSerializer):
             resume = Resume.objects.create(user=grad, resume=resume)
         return validated_data
     
+class ResumeListForGraduateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = ('id', 'resume')
+    
+    def get_resume(self, obj):
+        return self.context['request'].build_absolute_uri(obj.resume.url)
 
 class Graduateprofileserializer(serializers.ModelSerializer):
-
+    resume_list = ResumeListForGraduateSerializer(many=True, read_only=True)
     class Meta:
         model = GraduatesDetail
-        fields = ['id', 'full_name', 'dob', 'image', 'phone', "working_status"]
-        read_only_fields = ['id', 'dob']
+        fields = ['id', 'full_name', 'dob', 'image', 'phone', "working_status", "resume_list"]
+        read_only_fields = ['id', 'dob', 'resume_list']
 
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
@@ -149,10 +158,12 @@ class ResumeListSerializer(serializers.ModelSerializer):
 
 class GraduatesDetailSerializer(serializers.ModelSerializer):
     resume_set = ResumeListSerializer(many=True, read_only=True)
+    email = serializers.EmailField(source="user.username")
+    role = serializers.CharField(source='role.role_type')
 
     class Meta:
         model = GraduatesDetail
-        fields = ('id', 'working_status' ,'user', 'role', 'full_name', 'dob', 'image', 'phone', 'resume_set')
+        fields = ('id', 'working_status' ,'email', 'role', 'full_name', 'dob', 'image', 'phone', 'resume_set')
     
     def get_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.image.url)
@@ -335,7 +346,7 @@ class JobListDetailForAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
+        fields = ['id','posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
                   'application_end_date', 'location', 'description', 'resume']
         
     def get_description(self, obj):
@@ -359,3 +370,20 @@ class JobListDetailForAdminSerializer(serializers.ModelSerializer):
     
 #     def get_resume(self, obj):
 #         return self.context['request'].build_absolute_uri(obj.resume.url)
+
+
+#resume
+class ResumeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = ['id','resume']
+        read_only_fileds = ['id']
+    
+    def create(self, validated_data):
+        resume = validated_data.get('resume')
+        usr = self.context['request'].user.graduate
+        Resume.objects.create(user = usr, resume=resume, status="Active")
+        return validated_data
+    
+    def get_resume(self, obj):
+        return self.context['request'].build_absolute_uri(obj.resume.url)

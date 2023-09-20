@@ -509,7 +509,43 @@ class JobRegisterAPIView(APIView):
                 }
         else:
             res = {
-                'status' : status.HTTP_308_PERMANENT_REDIRECT,
+                'status' : status.HTTP_400_BAD_REQUEST,
                 'message' : 'already applied for this job'
             }
         return Response(res)
+
+
+#Resume
+class ResumeCreateAPIView(APIView):
+    permission_classes = [GraduateOnlyPermission]
+
+    def post(self, request):
+        serializer = ResumeCreateSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'resume upload success'
+                }
+        else:
+            res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'err_message' : serializer.errors
+                }
+        return Response(res)
+    
+    def delete(self, request, pk=None):
+        try:
+            resume = Resume.objects.get(id=pk)
+            resume.delete()
+            res = {
+                'status' : status.HTTP_200_OK,
+                'message' : 'resume delete success'
+            }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : f'{e}'
+            }
+        return Response(res)
+

@@ -8,9 +8,9 @@ STATUS = (
 )
 
 WORKING_STATUS = (
-    (1, "Looking for job"),
-    (2, "Internship"),
-    (3, "Working")
+    ("Looking for job", "Looking for job"),
+    ("Internship", "Internship"),
+    ("Working", "Working")
 )
 
 
