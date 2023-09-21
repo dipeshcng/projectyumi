@@ -396,3 +396,20 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
     
     def get_resume(self, obj):
         return self.context['request'].build_absolute_uri(obj.resume.url)
+    
+
+#Programs
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ['id', "posted_by", 'title', 'description', 'start_date', 'end_date', 'total_slots']
+        read_only_fields = ['id', "posted_by"]
+
+    def create(self, validated_data):
+        title = validated_data['title']
+        description = validated_data['description']
+        start_date = validated_data['start_date']
+        end_date = validated_data['end_date']
+        user = self.context['request'].user
+        Program.objects.create(status="Active",posted_by=user, title=title, description=description,start_date=start_date, end_date=end_date)
+        return validated_data

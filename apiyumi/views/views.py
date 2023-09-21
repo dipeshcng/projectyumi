@@ -561,3 +561,102 @@ class ResumeCreateAPIView(APIView):
             }
         return Response(res)
 
+
+#Programs
+class ProgramCreateUpdateAPIView(APIView):
+    permission_classes = [AdminOnlyPermission|SuperAdminOnlyPermission]
+
+    def post(self, request):
+        serializer = ProgramSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            res = {
+                'status' : status.HTTP_201_CREATED,
+                'message' : 'program create success'
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : serializer.errors
+            }
+        return Response(res)
+
+    def patch(self, request, pk=None):
+        program = Program.objects.get(id=pk)
+        serializer = ProgramSerializer(program, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            res = {
+                'status' : status.HTTP_201_CREATED,
+                'message' : 'program update success'
+            }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : serializer.errors
+            }
+        return Response(res)
+
+
+class ProgramListDetailAPIView(APIView):
+    permission_classes = [GraduateOnlyPermission|VolunteerOnlyPermission|AdminOnlyPermission|SuperAdminOnlyPermission]
+
+    def get(self, request, pk=None):
+        try:
+            if pk is None:
+                programs = Program.objects.filter(status="Active")
+                serializer = ProgramSerializer(programs, many=True)
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : serializer.data
+                    }
+            else:
+                user = request.user
+                program = Program.objects.get(id=pk)
+                registered_by_count = program.registered_by.count()
+                if hasattr(user, 'graduate') or hasattr(user, 'volunteer'):
+                    serializer = ProgramSerializer(program)
+                    res = {
+                    'status' : status.HTTP_200_OK,
+                    'data' : serializer.data
+                    }
+                else:
+                    serializer = ProgramSerializer(program)
+                    data = serializer.data
+                    data['register'] = registered_by_count
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'data' : data
+                        }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : f'{e}'
+            }
+        return Response(res)
+
+class ProgramRegisterAPIView(APIView):
+    permission_classes = [GraduateOnlyPermission|VolunteerOnlyPermission]
+
+    def post(self, request, pk=None):
+        try:
+            user = request.user
+            program = Program.objects.get(id=pk)
+            if user not in program.registered_by.all():
+                    program.registered_by.add(user)
+                    program.save()
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'program apply success'
+                    }
+            else:
+                res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'err_message' : 'already applied for this job'
+                }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : f'{e}'
+            }
+        return Response(res)

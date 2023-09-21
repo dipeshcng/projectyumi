@@ -85,4 +85,17 @@ urlpatterns = [
     path('api/v1/resume/', ResumeCreateAPIView.as_view()),
     path('api/v1/resume/<int:pk>/', ResumeCreateAPIView.as_view()),
 
+
+    #programs
+    path('api/v1/admin/program/', ProgramCreateUpdateAPIView.as_view()),
+    path('api/v1/admin/program/<int:pk>/', ProgramCreateUpdateAPIView.as_view()),
+
+
+    path('api/v1/program/', ProgramListDetailAPIView.as_view()),
+    path('api/v1/program/<int:pk>/', ProgramListDetailAPIView.as_view()),
+    path('api/v1/program/<int:pk>/register/', ProgramRegisterAPIView.as_view()),
+
+
+
+
 ]
