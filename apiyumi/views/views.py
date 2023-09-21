@@ -11,6 +11,8 @@ from apiyumi.utils.email import SignUpEmailThread, ProfileUpdateEmailThread
 from apiyumi.utils.utils import calculate_age, convert_date
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework import generics
+import json
+
 
 
 #Business Classes API View
@@ -269,7 +271,7 @@ class EventCreateUpdateAPIView(APIView):
 from datetime import date
 from apiyumi.utils.validators import CustomPageNumberPagination
 class EventListAPIView(APIView):
-    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|SuperAdminOnlyPermission|AdminOnlyPermission]
+    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|SuperAdminOnlyPermission|AdminOnlyPermission|BusinessOnlyPermission]
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
@@ -307,12 +309,12 @@ class EventListAPIView(APIView):
 
 
 class EventDetailAPIView(APIView):
-    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|SuperAdminOnlyPermission|AdminOnlyPermission]
+    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|SuperAdminOnlyPermission|AdminOnlyPermission|BusinessOnlyPermission]
 
     def get(self, request, pk=None):
         try:
             user = request.user
-            if hasattr(user, 'volunteer') or hasattr(user, 'graduate'):
+            if hasattr(user, 'volunteer') or hasattr(user, 'graduate') or hasattr(user, 'hostbusiness'):
                 event = Event.objects.get(id=pk)
                 if event.status == "Active" and event.event_post_end_date >= date.today():
                     serializer = EventDetailSerialzer(event, context={'request':request})
@@ -353,10 +355,10 @@ class EventDetailAPIView(APIView):
 
 
 class RegisterUnregisterForEventAPIView(APIView):
-    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission]
+    permission_classes = [VolunteerOnlyPermission|GraduateOnlyPermission|BusinessOnlyPermission]
 
-    def get(self, request, pk=None):
-        user = request.user
+    def post(self, request, pk=None):
+        user = request.user        
         event = Event.objects.get(id=pk)
         if user not in event.registered_by.all():
             event.registered_by.add(user)
@@ -483,34 +485,45 @@ class JobDetailAPIView(APIView):
         except Exception as e:
             return Response(f'{e}')
     
-
 class JobRegisterAPIView(APIView):
     permission_classes = [GraduateOnlyPermission]
+    parser_classes = [FormParser, MultiPartParser, JSONParser]
 
-    def get(self, request, pk=None):
-        user = request.user
-        job = Job.objects.get(id=pk)
-        if user not in job.applied_by.all():
-            resume_id = self.request.GET.get('resume_id', None)
-            grad = GraduatesDetail.objects.get(user=user)
-            resume = Resume.objects.filter(id=resume_id, user=grad).last()
-            if resume:
-                job.applied_by.add(user)
-                job.resume.add(resume)
-                job.save()
-                res = {
-                    'status' : status.HTTP_200_OK,
-                    'message' : 'job apply success'
-                }
+
+    def post(self, request, pk=None):
+        # import pdb;pdb.set_trace()
+        try:
+            user = request.user
+            job = Job.objects.get(id=pk)
+            if user not in job.applied_by.all():
+                data = json.loads(request.body.decode('utf-8'))
+                resume_id = data.get('resume_id')
+                message = data.get('message')
+                graduate = GraduatesDetail.objects.get(user=user)
+                resume = Resume.objects.filter(id=resume_id, user=user.graduate).last()
+                if resume and message:
+                    job.applied_by.add(user)
+                    job.resume.add(resume)
+                    job.save()
+                    JobMessage.objects.create(status="Active",user=user, job=job,message=message)
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'job apply success'
+                    }
+                else:
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'upload resume first and also message cannot be empty'
+                    }
             else:
                 res = {
-                    'status' : status.HTTP_200_OK,
-                    'message' : 'upload resume first'
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'err_message' : 'already applied for this job'
                 }
-        else:
+        except Exception as e:
             res = {
                 'status' : status.HTTP_400_BAD_REQUEST,
-                'message' : 'already applied for this job'
+                'err_message' : f'{e}'
             }
         return Response(res)
 

@@ -127,7 +127,7 @@ class Graduateprofileserializer(serializers.ModelSerializer):
     resume_list = ResumeListForGraduateSerializer(many=True, read_only=True)
     class Meta:
         model = GraduatesDetail
-        fields = ['id', 'full_name', 'dob', 'image', 'phone', "working_status", "resume_list"]
+        fields = ['id','user' ,'full_name', 'dob', 'image', 'phone', "working_status", "resume_list"]
         read_only_fields = ['id', 'dob', 'resume_list']
 
     def get_image(self, obj):
@@ -137,13 +137,14 @@ class Graduateprofileserializer(serializers.ModelSerializer):
 
 
 class ResumeSerializer(serializers.ModelSerializer):
-    user = Graduateprofileserializer(read_only=True)
+    graduate = Graduateprofileserializer(read_only=True, source='user')
     class Meta:
         model = Resume
-        fields = [ 'user', 'resume']
+        fields = [ 'graduate', 'resume']
 
     def get_resume(self, obj):
         return self.context['request'].build_absolute_uri(obj.resume.url)
+    
     
 
 # serializers.py
@@ -268,6 +269,8 @@ class RegisteredBySerializer(serializers.ModelSerializer):
             full_name = obj.volunteer.full_name
         elif hasattr(obj, 'graduate'):
             full_name = obj.graduate.full_name
+        elif hasattr(obj, 'hostbusiness'):
+            full_name = obj.hostbusiness.name_of_business
         else:
             full_name = None
         return full_name
@@ -340,14 +343,20 @@ class ResumeHelperSerializer(serializers.ModelSerializer):
         model = Resume
         fields = ['user', 'resume']
 
+class JobMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobMessage
+        fields = ['user', 'message']
+
 class JobListDetailForAdminSerializer(serializers.ModelSerializer):
     creator = serializers.SerializerMethodField(read_only=True)
     resume = ResumeSerializer(read_only=True, many=True)
+    message = JobMessageSerializer(read_only=True, many=True, source='jobmessage_set')
 
     class Meta:
         model = Job
         fields = ['id','posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
-                  'application_end_date', 'location', 'description', 'resume']
+                  'application_end_date', 'location', 'description', 'resume', 'message']
         
     def get_description(self, obj):
         return self.context['request'].build_absolute_uri(obj.description.url)

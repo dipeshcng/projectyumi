@@ -136,3 +136,11 @@ class Event(TimeStamp):
     def __str__(self):
         return self.event_name
 
+class JobMessage(TimeStamp):
+    user = models.ForeignKey(User,on_delete=models.CASCADE, null=True, blank=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True, blank=True)
+
+    message = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.job.id)
