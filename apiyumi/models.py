@@ -148,6 +148,7 @@ class JobMessage(TimeStamp):
 class Program(TimeStamp):
     posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='program')
     title = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField()
     document = models.FileField(null=True, blank=True)
     start_date = models.DateTimeField()

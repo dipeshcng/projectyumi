@@ -402,14 +402,16 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ['id', "posted_by", 'title', 'description', 'start_date', 'end_date', 'total_slots']
+        fields = ['id', "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots']
         read_only_fields = ['id', "posted_by"]
 
     def create(self, validated_data):
         title = validated_data['title']
         description = validated_data['description']
+        location = validated_data['location']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
         user = self.context['request'].user
-        Program.objects.create(status="Active",posted_by=user, title=title, description=description,start_date=start_date, end_date=end_date)
+        Program.objects.create(status="Active",posted_by=user, title=title, description=description,start_date=start_date, end_date=end_date, 
+                               location=location)
         return validated_data
