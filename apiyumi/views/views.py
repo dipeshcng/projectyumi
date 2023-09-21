@@ -491,7 +491,6 @@ class JobRegisterAPIView(APIView):
 
 
     def post(self, request, pk=None):
-        # import pdb;pdb.set_trace()
         try:
             user = request.user
             job = Job.objects.get(id=pk)
