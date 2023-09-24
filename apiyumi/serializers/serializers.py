@@ -404,6 +404,13 @@ class ProgramDocumentSerializer(serializers.ModelSerializer):
         model = ProgramDocument
         fields = ['id','document']
     
+    def create(self, validated_data):
+        documents = self.context['request'].FILES.getlist('document', [])
+        program = self.context['program']
+        for doc in documents:
+            ProgramDocument.objects.create(status='Active',program=program, document=doc)
+        return validated_data
+    
     def get_document(self, obj):
         return self.context['request'].build_absolute_uri(obj.document.url)
 

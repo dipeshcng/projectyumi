@@ -690,8 +690,25 @@ class ProgramRegisterAPIView(APIView):
             }
         return Response(res)
 
-class ProgramDocumentDeleteAPIView(APIView):
+class ProgramDocumentCreateDeleteAPIView(APIView):
     permission_classes = [AdminOnlyPermission|SuperAdminOnlyPermission]
+
+    def post(self, request, program_id=None):
+        program = Program.objects.get(id=program_id)
+        serializer = ProgramDocumentSerializer(data=request.FILES, context={'program':program, 'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'document create success'
+                    }
+        else:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_messsage' : serializer.errors
+            }
+        return Response(res)
+
 
     def delete(self, request, program_id=None, document_id=None):
         try:
