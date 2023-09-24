@@ -565,6 +565,7 @@ class ResumeCreateAPIView(APIView):
 #Programs
 class ProgramCreateUpdateAPIView(APIView):
     permission_classes = [AdminOnlyPermission|SuperAdminOnlyPermission]
+    # parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
         serializer = ProgramSerializer(data=request.data, context={'request':request})
@@ -582,46 +583,74 @@ class ProgramCreateUpdateAPIView(APIView):
         return Response(res)
 
     def patch(self, request, pk=None):
-        program = Program.objects.get(id=pk)
-        serializer = ProgramSerializer(program, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            res = {
-                'status' : status.HTTP_201_CREATED,
-                'message' : 'program update success'
-            }
-        else:
+        try:
+            program = Program.objects.get(id=pk)
+            serializer = ProgramSerializer(program, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                res = {
+                    'status' : status.HTTP_201_CREATED,
+                    'message' : 'program update success'
+                }
+            else:
+                res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'err_message' : serializer.errors
+                }
+        except Exception as e:
             res = {
                 'status' : status.HTTP_400_BAD_REQUEST,
-                'err_message' : serializer.errors
+                'err_message' : f'{e}'
             }
         return Response(res)
 
 
 class ProgramListDetailAPIView(APIView):
     permission_classes = [GraduateOnlyPermission|VolunteerOnlyPermission|AdminOnlyPermission|SuperAdminOnlyPermission]
-
+    pagination_class = CustomPageNumberPagination
     def get(self, request, pk=None):
         try:
             if pk is None:
                 programs = Program.objects.filter(status="Active")
-                serializer = ProgramSerializer(programs, many=True)
+                paginator = self.pagination_class()
+                page_size = request.query_params.get('page_size', 10)
+                paginator.page_size = int(page_size)
+                result_page = paginator.paginate_queryset(programs, request)
+                serializer = ProgramListSerializer(result_page, many=True)
+                data = {
+                'current_page': paginator.page.number,
+                'page_size': paginator.page_size,
+                'count': paginator.page.paginator.count,
+                'total_pages' : paginator.page.paginator.num_pages,
+                'next': paginator.get_next_link(),
+                'previous': paginator.get_previous_link(),
+                'results': serializer.data,
+            }
                 res = {
                     'status' : status.HTTP_200_OK,
-                    'message' : serializer.data
+                    'data' : data
                     }
             else:
                 user = request.user
                 program = Program.objects.get(id=pk)
                 registered_by_count = program.registered_by.count()
-                if hasattr(user, 'graduate') or hasattr(user, 'volunteer'):
-                    serializer = ProgramSerializer(program)
+                if hasattr(user, 'volunteer'):
+                    serializer = ProgramListSerializer(program, context={'request':request})
+                    data = serializer.data
                     res = {
                     'status' : status.HTTP_200_OK,
-                    'data' : serializer.data
+                    'data' : data
+                    }
+                elif hasattr(user, 'graduate') or hasattr(user, 'volunteer'):
+                    serializer = ProgramDetailSerializer(program, context={'request':request})
+                    data = serializer.data
+                    data['register'] = registered_by_count
+                    res = {
+                    'status' : status.HTTP_200_OK,
+                    'data' : data
                     }
                 else:
-                    serializer = ProgramSerializer(program)
+                    serializer = ProgramDetailSerializer(program, context={'request':request})
                     data = serializer.data
                     data['register'] = registered_by_count
                     res = {
@@ -660,3 +689,29 @@ class ProgramRegisterAPIView(APIView):
                 'err_message' : f'{e}'
             }
         return Response(res)
+
+class ProgramDocumentDeleteAPIView(APIView):
+    permission_classes = [AdminOnlyPermission|SuperAdminOnlyPermission]
+
+    def delete(self, request, program_id=None, document_id=None):
+        try:
+            program = Program.objects.get(id=program_id)
+            document = ProgramDocument.objects.get(id=document_id)
+            if document in program.programdocument_set.all():
+                document.delete()
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'document delete success'
+                    }
+            else:
+                res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'message' : 'Document Doestnot exists !!'
+                    }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : f'{e}'
+            }
+        return Response(res)
+

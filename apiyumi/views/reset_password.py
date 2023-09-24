@@ -102,6 +102,9 @@ class UserResetPasswordForm(forms.Form):
 
 from django.http import HttpResponse
 from django.shortcuts import redirect
+
+
+
 class UserPasswordResetPasswordView(FormView):
     template_name = "password_reset_confirm.html"
     form_class = UserResetPasswordForm

@@ -94,6 +94,7 @@ urlpatterns = [
     path('api/v1/program/', ProgramListDetailAPIView.as_view()),
     path('api/v1/program/<int:pk>/', ProgramListDetailAPIView.as_view()),
     path('api/v1/program/<int:pk>/register/', ProgramRegisterAPIView.as_view()),
+    path('api/v1/program/<int:program_id>/document/<int:document_id>/', ProgramDocumentDeleteAPIView.as_view()),
 
 
 

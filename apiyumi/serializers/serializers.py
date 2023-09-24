@@ -350,13 +350,13 @@ class JobMessageSerializer(serializers.ModelSerializer):
 
 class JobListDetailForAdminSerializer(serializers.ModelSerializer):
     creator = serializers.SerializerMethodField(read_only=True)
-    resume = ResumeSerializer(read_only=True, many=True)
+    applied_graduates = ResumeSerializer(read_only=True, many=True)
     message = JobMessageSerializer(read_only=True, many=True, source='jobmessage_set')
 
     class Meta:
         model = Job
         fields = ['id','posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
-                  'application_end_date', 'location', 'description', 'resume', 'message']
+                  'application_end_date', 'location', 'description', 'applied_graduates', 'message']
         
     def get_description(self, obj):
         return self.context['request'].build_absolute_uri(obj.description.url)
@@ -399,10 +399,39 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
     
 
 #Programs
-class ProgramSerializer(serializers.ModelSerializer):
+class ProgramDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgramDocument
+        fields = ['id','document']
+    
+    def get_document(self, obj):
+        return self.context['request'].build_absolute_uri(obj.document.url)
+
+class ProgramListSerializer(serializers.ModelSerializer):
+    total_documents = serializers.SerializerMethodField()
+    total_register = serializers.SerializerMethodField()
     class Meta:
         model = Program
-        fields = ['id', "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots']
+        fields = ['id', "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots', 'total_documents', 'total_register']
+    
+    def get_total_documents(self, obj):
+        return obj.programdocument_set.count()
+    
+    def get_total_register(self, obj):
+        return obj.registered_by.all().count()
+
+class ProgramDetailSerializer(serializers.ModelSerializer):
+    documents = ProgramDocumentSerializer(many=True, read_only=True,  source='programdocument_set')
+    class Meta:
+        model = Program
+        fields = ['id', "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots', 'documents']
+        # read_only_fields = ['id', "posted_by"]
+
+class ProgramSerializer(serializers.ModelSerializer):
+    document = serializers.FileField()
+    class Meta:
+        model = Program
+        fields = ['id', "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots', 'document']
         read_only_fields = ['id', "posted_by"]
 
     def create(self, validated_data):
@@ -412,6 +441,9 @@ class ProgramSerializer(serializers.ModelSerializer):
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
         user = self.context['request'].user
-        Program.objects.create(status="Active",posted_by=user, title=title, description=description,start_date=start_date, end_date=end_date, 
+        program = Program.objects.create(status="Active",posted_by=user, title=title, description=description,start_date=start_date, end_date=end_date, 
                                location=location)
+        documents = self.context['request'].FILES.getlist('document', [])
+        for document in documents:
+            ProgramDocument.objects.create(status="Active", program=program, document=document)
         return validated_data

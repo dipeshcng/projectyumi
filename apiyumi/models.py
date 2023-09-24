@@ -113,7 +113,7 @@ class Job(TimeStamp):
     description = models.FileField(null=True, blank=True)
 
     applied_by = models.ManyToManyField(User, related_name='job_applied_by', blank=True)
-    resume = models.ManyToManyField(Resume, blank=True, related_name="job_resume")
+    applied_graduates = models.ManyToManyField(Resume, blank=True, related_name="job_resume")
 
     def __str__(self):
         return self.title
@@ -150,7 +150,6 @@ class Program(TimeStamp):
     title = models.CharField(max_length=200)
     location = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField()
-    document = models.FileField(null=True, blank=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     total_slots = models.PositiveIntegerField(null=True, blank=True)
@@ -158,3 +157,10 @@ class Program(TimeStamp):
 
     def __str__(self):
         return self.title
+
+class ProgramDocument(TimeStamp):
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    document = models.FileField(null=True, blank=True)
+
+    def __str__(self):
+        return self.program.title
