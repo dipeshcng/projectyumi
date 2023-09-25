@@ -19,7 +19,7 @@ urlpatterns = [
     # path('api/v1/auth/accounts/', DecodeTokenView.as_view()),
     path('api/v1/auth/account/', DecodeTokenForSingleUserView.as_view()),
 
-    path('logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    # path('logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
     #reset password
     path('api/v1/user/request-reset-email/', UserResetPasswordRequestEmailAPIView.as_view()),

@@ -14,7 +14,7 @@ class UserLoginAPIView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid()
-        email = serializer.data['email']
+        email = serializer.data['email'].lower()
         password = serializer.data['password']
         user = authenticate(username = email, password=password)
         try:

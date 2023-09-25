@@ -13,7 +13,6 @@ class AdminRegistrationAPIView(APIView):
     permission_classes = [SuperAdminOnlyPermission, ]
 
     def post(self, request):
-        print(request.data)
         serializer = AdminRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -30,21 +29,31 @@ class AdminRegistrationAPIView(APIView):
 
 
 class AdminProfileView(APIView):
-    permission_classes = [AdminOnlyPermission, ]
+    permission_classes = [AdminOnlyPermission|SuperAdminOnlyPermission]
 
     def get(self, request):
         try:
             user = request.user
-            admin = Admin.objects.filter(user=user).first()
-            serializer = AdminProfileserialzer(admin)
-            res = {
-                'status' : status.HTTP_200_OK,
-                'message' : 'success',
-                'data' : {
-                    'email' : serializer.data['user']['username'],
-                    'full_name' : serializer.data['full_name']
+            if user.is_superuser == False:
+                admin = Admin.objects.filter(user=user).first()
+                serializer = AdminProfileserialzer(admin)
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'success',
+                    'data' : {
+                        'email' : serializer.data['user']['username'],
+                        'full_name' : serializer.data['full_name']
+                    }
                 }
-            }
+            else:
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'success',
+                    'data' : {
+                        'full_name' : 'superuser',
+                        'email' : user.username
+                    }
+                }
             return Response(res)
         except Exception as e:
             res = {
