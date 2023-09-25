@@ -137,13 +137,56 @@ class Graduateprofileserializer(serializers.ModelSerializer):
 
 
 class ResumeSerializer(serializers.ModelSerializer):
-    graduate = Graduateprofileserializer(read_only=True, source='user')
+    # graduate = Graduateprofileserializer(read_only=True, source='user')
+    grad_id = serializers.SerializerMethodField(read_only=True)
+    # user = serializers.SerializerMethodField(read_only=True)
+    full_name = serializers.SerializerMethodField(read_only=True)
+    email = serializers.SerializerMethodField(read_only=True)
+    dob = serializers.SerializerMethodField(read_only=True)
+    image = serializers.SerializerMethodField(read_only=True)
+    phone = serializers.SerializerMethodField(read_only=True)
+    working_status = serializers.SerializerMethodField(read_only=True)
+    message = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Resume
-        fields = [ 'graduate', 'resume']
+        fields = [ 'grad_id', 'full_name', 'email', 'dob', 'image', 'phone', 'resume', 'working_status','message']
+    
+    def get_grad_id(self, obj):
+        return obj.user.id
+    
+    def get_email(self, obj):
+        return obj.user.user.username
+    
+    def get_full_name(self, obj):
+        return obj.user.full_name
+    
+    def get_dob(self, obj):
+        return obj.user.dob
+    
+    def get_image(self, obj):
+        image = obj.user.image
+        if image:
+            return image
+        return None
+    
+    def get_phone(self, obj):
+        return obj.user.phone
+    
+    def get_working_status(self, obj):
+        return obj.user.working_status
 
     def get_resume(self, obj):
         return self.context['request'].build_absolute_uri(obj.resume.url)
+    
+    def get_message(self, obj):
+        user = obj.user.user
+        job_id = self.context['job'].id
+        job1 = self.context['job']
+        job = Job.objects.get(id=job_id).applied_graduates.all()
+        for j in job:
+            message = JobMessage.objects.filter(user=j.user.user,job=job1).last()
+            # for m in message:
+            return message.message
     
     
 
@@ -348,15 +391,42 @@ class JobMessageSerializer(serializers.ModelSerializer):
         model = JobMessage
         fields = ['user', 'message']
 
-class JobListDetailForAdminSerializer(serializers.ModelSerializer):
+
+class JobListForAdminSerializer(serializers.ModelSerializer):
     creator = serializers.SerializerMethodField(read_only=True)
-    applied_graduates = ResumeSerializer(read_only=True, many=True)
-    message = JobMessageSerializer(read_only=True, many=True, source='jobmessage_set')
+    no_of_applied_graduates = serializers.SerializerMethodField(read_only=True)
+    # message = JobMessageSerializer(read_only=True, many=True, source='jobmessage_set')
 
     class Meta:
         model = Job
         fields = ['id','posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
-                  'application_end_date', 'location', 'description', 'applied_graduates', 'message']
+                  'application_end_date', 'location', 'description', 'no_of_applied_graduates']
+        
+    def get_description(self, obj):
+        return self.context['request'].build_absolute_uri(obj.description.url)
+    
+    def get_creator(self, obj):
+        if hasattr(obj.posted_by, 'hostbusiness'):
+            creator_instance = obj.posted_by.hostbusiness.name_of_business
+        else:
+            creator_instance = "Project Yumi"
+
+        if creator_instance:
+            return creator_instance 
+        return None
+
+    def get_no_of_applied_graduates(self, obj):
+        return obj.applied_graduates.count()
+
+class JobListDetailForAdminSerializer(serializers.ModelSerializer):
+    creator = serializers.SerializerMethodField(read_only=True)
+    applied_graduates = ResumeSerializer(read_only=True, many=True)
+    # message = JobMessageSerializer(read_only=True, many=True, source='jobmessage_set')
+
+    class Meta:
+        model = Job
+        fields = ['id','posted_by', 'creator','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
+                  'application_end_date', 'location', 'description', 'applied_graduates']
         
     def get_description(self, obj):
         return self.context['request'].build_absolute_uri(obj.description.url)

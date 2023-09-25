@@ -6,6 +6,7 @@ from .views.reset_password import UserResetPasswordRequestEmailAPIView, UserPass
 from apiyumi.views.login import UserLoginAPIView, DecodeTokenView, DecodeTokenForSingleUserView
 from rest_framework import routers
 from apiyumi.views.admin_views import *
+from rest_framework_simplejwt.views import TokenBlacklistView
 
 # router = routers.DefaultRouter()
 # router.register('', views.BusinessregistrationAPIView)
@@ -17,6 +18,8 @@ urlpatterns = [
     path('api/v1/auth/login/', UserLoginAPIView.as_view()),
     # path('api/v1/auth/accounts/', DecodeTokenView.as_view()),
     path('api/v1/auth/account/', DecodeTokenForSingleUserView.as_view()),
+
+    path('logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
     #reset password
     path('api/v1/user/request-reset-email/', UserResetPasswordRequestEmailAPIView.as_view()),

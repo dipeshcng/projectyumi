@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     "storages",
+    # 'rest_framework_simplejwt.token_blacklist',
 
     #installed apps
     'apiyumi',
@@ -180,6 +181,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES':['rest_framework_simplejwt.authentication.JWTAuthentication', ],
+    'DATE_FORMAT': "%d-%m-%Y",
+    'DATETIME_FORMAT': "%d-%m-%Y %H:%M",
     'DATE_INPUT_FORMATS': ["%d/%m/%Y"],
     'TIME_INPUT_FORMATS': ['%h:%m'],
     'DATETIME_INPUT_FORMATS':['%d/%m/%Y %H:%M']

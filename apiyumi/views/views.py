@@ -427,11 +427,11 @@ class JobListAPIView(APIView):
             elif hasattr(user, 'hostbusiness'):
                 job_qs = Job.objects.filter(posted_by=user).order_by("-created_at")
                 result_page = paginator.paginate_queryset(job_qs, request)
-                serializer = JobListDetailForAdminSerializer(result_page,many=True, context={'request':request})
+                serializer = JobListForAdminSerializer(result_page,many=True, context={'request':request})
             elif hasattr(user, 'admin'):
                 job_qs = Job.objects.all().order_by("-created_at")
                 result_page = paginator.paginate_queryset(job_qs, request)
-                serializer = JobListDetailForAdminSerializer(result_page, many=True, context = {'request': request})
+                serializer = JobListForAdminSerializer(result_page, many=True, context = {'request': request})
             data = {
                 'current_page': paginator.page.number,
                 'page_size': paginator.page_size,
@@ -469,14 +469,14 @@ class JobDetailAPIView(APIView):
                 }
             elif hasattr(user, 'hostbusiness'):
                 job = Job.objects.filter(id=pk,posted_by=user).first()
-                serializer = JobListDetailForAdminSerializer(job, context = {'request':request})
+                serializer = JobListDetailForAdminSerializer(job, context = {'request':request, 'job':job})
                 res = {
                     'status' : status.HTTP_200_OK,
                     'data' : serializer.data
                 }
             else:
                 job = Job.objects.get(id=pk)
-                serializer = JobListDetailForAdminSerializer(job, context={'request' : request})
+                serializer = JobListDetailForAdminSerializer(job, context={'request' : request, 'job':job})
                 res = {
                     'status' : status.HTTP_200_OK,
                     'data' : serializer.data
