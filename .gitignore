@@ -2,7 +2,7 @@
 *.pot
 *.pyc
 # __pycache__
-db.sqlite3
+# db.sqlite3
 media
 .env 
 .venv 
@@ -11,7 +11,7 @@ venv/
 ENV/ 
 env.bak/ 
 venv.bak/ 
-db.sqlite3
-*.db.sqlite3
-*.sqlite3
-projectyumi\db.sqlite3
+# db.sqlite3
+# *.db.sqlite3
+# *.sqlite3
+# projectyumi\db.sqlite3
