@@ -665,7 +665,7 @@ class ProgramListDetailAPIView(APIView):
         return Response(res)
 
 class ProgramRegisterAPIView(APIView):
-    permission_classes = [GraduateOnlyPermission|VolunteerOnlyPermission]
+    permission_classes = [GraduateOnlyPermission|VolunteerOnlyPermission|BusinessOnlyPermission]
 
     def post(self, request, pk=None):
         try:
