@@ -4,7 +4,7 @@ from .utils.constants import *
 from django.conf import settings
 
 from enum import IntEnum
-
+from django.core.validators import RegexValidator
 
 
 class TimeStamp(models.Model):
@@ -40,7 +40,9 @@ class BusinessDetail(TimeStamp):
     #for business
     name_of_business = models.CharField(max_length=100)
     business_logo = models.ImageField(null=True, blank=True)
-    business_contact = models.CharField(max_length=15)
+
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    business_contact = models.CharField(max_length=17, validators=[phone_regex], blank=True)
     location = models.CharField(max_length=100)
     number_of_employee = models.IntegerField(null=True, blank=True)
     level_of_recruitment = models.CharField(max_length=100, null=True, blank=True)
@@ -68,7 +70,9 @@ class GraduatesDetail(TimeStamp):
     full_name = models.CharField(max_length=100)
     dob = models.DateField()
     image = models.ImageField(upload_to='user/graduate', null=True, blank=True)
-    phone = models.CharField(max_length=15)
+
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone = models.CharField(max_length=17, validators=[phone_regex], blank=True)
     # cv = models.FileField(upload_to='files', null=True, blank=True)
 
     def __str__(self) -> str:
