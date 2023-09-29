@@ -261,7 +261,7 @@ class Volunteerprofileserializer(serializers.ModelSerializer):
 class EventCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['event_name', 'location', 'description', 'document','event_start_date', 'event_end_date']
+        fields = ['event_name', 'location', 'description', 'document','event_start_date', 'event_end_date', 'event_post_end_date']
     def create(self, validated_data):
         event_name = validated_data['event_name']
         location = validated_data['location']
@@ -269,9 +269,10 @@ class EventCreateSerializer(serializers.ModelSerializer):
         document = validated_data.get('document')
         event_start_date = validated_data['event_start_date']
         event_end_date = validated_data['event_end_date']
+        event_post_end_date = validated_data['event_post_end_date']
         user = self.context['request'].user
         Event.objects.create(posted_by=user, event_name=event_name, location=location, description=description, event_start_date=event_start_date, 
-                                     document=document,event_end_date=event_end_date, status='Active')
+                                     document=document,event_end_date=event_end_date, status='Active', event_post_end_date=event_post_end_date)
         return validated_data
 
     def update(self, instance, validate_data):
@@ -281,6 +282,7 @@ class EventCreateSerializer(serializers.ModelSerializer):
         instance.document = validate_data.get('document', instance.document)
         instance.event_start_date = validate_data.get('event_start_date', instance.event_start_date)
         instance.event_end_date = validate_data.get('event_end_date', instance.event_end_date)
+        instance.event_post_end_date = validate_data.get('event_post_end_date', instance.event_post_end_date)
         instance.save()
         return instance
     

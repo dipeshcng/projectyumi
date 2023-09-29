@@ -53,14 +53,6 @@ class BusinessDetail(TimeStamp):
     def __str__(self) -> str:
         return self.name_of_business
 
-# class WorkingStatus(IntEnum):
-#   LookingForJob = 1
-#   Internship = 2
-#   Working = 3
-  
-#   @classmethod
-#   def choices(cls):
-#     return [(key.value, key.name) for key in cls]
   
 class GraduatesDetail(TimeStamp):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='graduate')
