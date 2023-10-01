@@ -123,6 +123,23 @@ class BusinessListForAdminAPIView(APIView):
                 'message' : f'{e}'
             }
         return Response(res)
+    
+    def delete(self, request, pk=None):
+        try:
+            business = BusinessDetail.objects.get(id=pk)
+            user = business.user
+            user.delete()
+            res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'delete success'
+                }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
+            }
+        return Response(res)
+
 
 
 class GraduateListForAdminAPIView(APIView):
@@ -185,6 +202,23 @@ class GraduateListForAdminAPIView(APIView):
                 'message' : f'{e}'
             }
         return Response(res)
+    
+
+    def delete(self, request, pk=None):
+        try:
+            graduate = GraduatesDetail.objects.get(id=pk)
+            user = graduate.user
+            user.delete()
+            res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'delete success'
+                }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
+            }
+        return Response(res)
 
 
 class VolunteerListForAdminAPIView(APIView):
@@ -240,6 +274,23 @@ class VolunteerListForAdminAPIView(APIView):
                 res = {
                     'status' : status.HTTP_400_BAD_REQUEST,
                     'error' : serializer.errors
+                }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
+            }
+        return Response(res)
+
+
+    def delete(self, request, pk=None):
+        try:
+            volunteer = Volunteer.objects.get(id=pk)
+            user = volunteer.user
+            user.delete()
+            res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'delete success'
                 }
         except Exception as e:
             res = {

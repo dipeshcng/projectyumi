@@ -267,6 +267,21 @@ class EventCreateUpdateAPIView(APIView):
             res = {'error_message': f'{e}'}
         
         return Response(res)
+    
+    def delete(self, request, pk=None):
+        try:
+            event = Event.objects.get(id=pk)
+            event.delete()
+            res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'delete success'
+                    }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
+            }
+        return Response(res)
 
 from datetime import date
 from apiyumi.utils.validators import CustomPageNumberPagination
@@ -409,6 +424,36 @@ class JobCreateUpdateAPIView(APIView):
                 'error_message' : serializer.errors
             }
         return Response(res)
+    
+    def delete(self, request, pk=None):
+        try:
+            job = Job.objects.get(id=pk)
+            user = request.user
+            if user.is_superuser == True or hasattr(user, 'admin'):
+                job.delete()
+                res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'delete success'
+                    }
+            elif hasattr(user, 'hostbusiness') and job.posted_by == user:
+                job.delete()
+                res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'delete success'
+                    }
+            else:
+                res = {
+                    'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    'message' : 'permission denied'
+                }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
+            }
+        return Response(res)
+
+
 
 class JobListAPIView(APIView):
     permission_classes = [GraduateOnlyPermission|AdminOnlyPermission|SuperAdminOnlyPermission|BusinessOnlyPermission]
@@ -548,11 +593,18 @@ class ResumeCreateAPIView(APIView):
     
     def delete(self, request, pk=None):
         try:
+            graduate = request.user.graduate
             resume = Resume.objects.get(id=pk)
-            resume.delete()
-            res = {
-                'status' : status.HTTP_200_OK,
-                'message' : 'resume delete success'
+            if resume.user == graduate:
+                resume.delete()
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'resume delete success'
+                }
+            else:
+                res = {
+                'status' : status.HTTP_400_BAD_REQUEST,
+                'err_message' : 'permission denied'
             }
         except Exception as e:
             res = {
@@ -601,6 +653,21 @@ class ProgramCreateUpdateAPIView(APIView):
             res = {
                 'status' : status.HTTP_400_BAD_REQUEST,
                 'err_message' : f'{e}'
+            }
+        return Response(res)
+    
+    def delete(self, request,pk=None):
+        try:
+            program = Program.objects.get(id=pk)
+            program.delete()
+            res = {
+                        'status' : status.HTTP_200_OK,
+                        'message' : 'delete success'
+                    }
+        except Exception as e:
+            res = {
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : f'{e}'
             }
         return Response(res)
 
