@@ -250,7 +250,7 @@ class EventCreateUpdateAPIView(APIView):
     def patch(self, request, pk=None):
         try:
             event = Event.objects.get(id=pk)
-            serializer = EventCreateSerializer(event,data=request.data, partial=True)
+            serializer = EventUpdateSerializer(event,data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 res = {
@@ -410,19 +410,40 @@ class JobCreateUpdateAPIView(APIView):
         return Response(res)
     
     def patch(self, request, pk=None):
+        user = request.user
         job = Job.objects.get(id=pk)
-        serializer = JobCreateUpdateSerializer(job, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            res = {
-                'status' : status.HTTP_200_OK,
-                'message' : 'job update success'
-            }
+        if user.is_superuser == True or hasattr(user, 'admin'):
+            serializer = JobUpdateForAdminSerializer(job, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'job update success'
+                }
+            else:
+                res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'error_message' : serializer.errors
+                }
+        elif hasattr(user, 'hostbusiness') and job.posted_by == user:
+            serializer = JobCreateUpdateSerializer(job, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                res = {
+                    'status' : status.HTTP_200_OK,
+                    'message' : 'job update success'
+                }
+            else:
+                res = {
+                    'status' : status.HTTP_400_BAD_REQUEST,
+                    'error_message' : serializer.errors
+                }
         else:
             res = {
-                'status' : status.HTTP_400_BAD_REQUEST,
-                'error_message' : serializer.errors
+                'status' : status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message' : 'permission denied'
             }
+        
         return Response(res)
     
     def delete(self, request, pk=None):
@@ -637,7 +658,7 @@ class ProgramCreateUpdateAPIView(APIView):
     def patch(self, request, pk=None):
         try:
             program = Program.objects.get(id=pk)
-            serializer = ProgramSerializer(program, data=request.data, partial=True)
+            serializer = ProgramUpdateSerializer(program, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 res = {

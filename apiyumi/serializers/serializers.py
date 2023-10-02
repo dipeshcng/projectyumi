@@ -274,8 +274,14 @@ class EventCreateSerializer(serializers.ModelSerializer):
         Event.objects.create(posted_by=user, event_name=event_name, location=location, description=description, event_start_date=event_start_date, 
                                      document=document,event_end_date=event_end_date, status='Active', event_post_end_date=event_post_end_date)
         return validated_data
+    
+class EventUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['status', 'event_name', 'location', 'description', 'document','event_start_date', 'event_end_date', 'event_post_end_date']
 
     def update(self, instance, validate_data):
+        instance.status = validate_data.get('status', instance.status)
         instance.event_name = validate_data.get('event_name', instance.event_name)
         instance.location = validate_data.get('location', instance.location)
         instance.description = validate_data.get('description', instance.description)
@@ -356,6 +362,14 @@ class JobCreateUpdateSerializer(serializers.ModelSerializer):
         Job.objects.create(posted_by=user, title=title, salary_type=salary_type, salary=salary, no_of_hires=no_of_hires, requirements=requirements,application_start_date=application_start_date,
                             application_end_date=application_end_date, location=location, description=description)
         return validated_data
+    
+
+class JobUpdateForAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['status', 'posted_by','title', 'salary_type', 'salary', 'no_of_hires', 'requirements', 'application_start_date',
+                  'application_end_date', 'location', 'description']
+        read_only_fields = ['posted_by']
 
 
 class JobListDetailSerializer(serializers.ModelSerializer):
@@ -526,3 +540,10 @@ class ProgramSerializer(serializers.ModelSerializer):
         for document in documents:
             ProgramDocument.objects.create(status="Active", program=program, document=document)
         return validated_data
+
+
+class ProgramUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ['id',"status", "posted_by", 'title', 'location','description', 'start_date', 'end_date', 'total_slots']
+        read_only_fields = ['id', "posted_by"]
