@@ -529,10 +529,18 @@ class JobDetailAPIView(APIView):
             if hasattr(user, 'graduate'):
                 job = Job.objects.filter(id=pk,status='Active', application_end_date__gte = str(date.today())).first()
                 serializer = JobListDetailSerializer(job, context={'request' : request})
-                res = {
-                    'status' : status.HTTP_200_OK,
-                    'data' : serializer.data
-                }
+                if user in job.applied_by.all():
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'data' : serializer.data,
+                        'applied' : 'true'
+                    }
+                else:
+                    res = {
+                        'status' : status.HTTP_200_OK,
+                        'data' : serializer.data,
+                        'applied' : 'false'
+                    }
             elif hasattr(user, 'hostbusiness'):
                 job = Job.objects.filter(id=pk,posted_by=user).first()
                 serializer = JobListDetailForAdminSerializer(job, context = {'request':request, 'job':job})
@@ -558,6 +566,7 @@ class JobRegisterAPIView(APIView):
 
     def post(self, request, pk=None):
         try:
+            import pdb;pdb.set_trace()
             user = request.user
             job = Job.objects.get(id=pk)
             if user not in job.applied_by.all():
@@ -568,7 +577,7 @@ class JobRegisterAPIView(APIView):
                 resume = Resume.objects.filter(id=resume_id, user=user.graduate).last()
                 if resume and message:
                     job.applied_by.add(user)
-                    job.resume.add(resume)
+                    job.applied_graduates.add(resume)
                     job.save()
                     JobMessage.objects.create(status="Active",user=user, job=job,message=message)
                     res = {
