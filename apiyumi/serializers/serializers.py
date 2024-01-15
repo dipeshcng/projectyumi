@@ -44,6 +44,7 @@ class BusinessRegistrationSerializer(serializers.ModelSerializer):
         name_of_business = validated_data['name_of_business']
         business_logo = validated_data.get('business_logo')
         business_contact = validated_data['business_contact']
+        print(validated_data)
         location = validated_data['location']
         start_date = validated_data.get('start_date')
         if start_date is None:

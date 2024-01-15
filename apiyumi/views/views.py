@@ -32,6 +32,7 @@ class BusinessregistrationAPIView(APIView):
             }
             return Response(resp)
         else:
+            print(serializer.errors)
             resp = {
                 "message":serializer.errors
             }
