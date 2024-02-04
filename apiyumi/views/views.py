@@ -567,13 +567,15 @@ class JobRegisterAPIView(APIView):
 
     def post(self, request, pk=None):
         try:
-            import pdb;pdb.set_trace()
             user = request.user
+            print(pk)
             job = Job.objects.get(id=pk)
             if user not in job.applied_by.all():
-                data = json.loads(request.body.decode('utf-8'))
-                resume_id = data.get('resume_id')
-                message = data.get('message')
+                # data = json.loads(request.data.resume_id)
+                # resume_id = data.get('resume_id')
+                resume_id = request.data.get('resume_id')
+                # message = data.get('message')
+                message = request.data.get('message')
                 graduate = GraduatesDetail.objects.get(user=user)
                 resume = Resume.objects.filter(id=resume_id, user=user.graduate).last()
                 if resume and message:
