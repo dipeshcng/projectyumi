@@ -396,6 +396,12 @@ class JobListDetailSerializer(serializers.ModelSerializer):
         return None
 
 
+class JobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Job
+        fields = '__all__'
+
     
 
 class ResumeHelperSerializer(serializers.ModelSerializer):

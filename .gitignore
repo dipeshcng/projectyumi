@@ -1,7 +1,7 @@
 # *.log
 # *.pot
 # *.pyc
-# __pycache__
+__pycache__
 # db.sqlite3
 # media
 .env 
@@ -16,3 +16,11 @@ venv.bak/
 # *.sqlite3
 # projectyumi\db.sqlite3
 mediafiles/
+
+apiyumi/__pycache__/
+apiyumi/migrations/__pycache__/
+apiyumi/serializers/__pycache__/
+apiyumi/utils/__pycache__/
+apiyumi/views/__pycache__/
+
+projectyumi/__pycache__/

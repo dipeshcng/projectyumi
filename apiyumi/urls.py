@@ -69,6 +69,7 @@ urlpatterns = [
     path('api/v1/job/', JobListAPIView.as_view()),
     path('api/v1/job/<int:pk>/', JobDetailAPIView.as_view()),
     path('api/v1/job/<int:pk>/register/', JobRegisterAPIView.as_view()),
+    path('api/v1/job/<int:pk>/status', JobStatusAPIView.as_view()),
 
     #end-points for admin for list of businessdetail, volunteer and graduate
     path('api/v1/business/', BusinessListForAdminAPIView.as_view()),

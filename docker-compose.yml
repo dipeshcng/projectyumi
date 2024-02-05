@@ -1,0 +1,19 @@
+services:
+  yumi_be:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: yumi_be:latest
+    container_name: yumi_be
+    extra_hosts:
+        - 'host.docker.internal:host-gateway'
+    ports:
+        - '8000:8000'
+    volumes:
+        - '.:/yumi'
+    networks:
+      - yumi
+
+networks:
+  yumi:
+    driver: bridge
