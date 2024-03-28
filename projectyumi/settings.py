@@ -154,8 +154,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 # if USE_S3:
     # AWS Settings
-# AWS_ACCESS_KEY_ID = 'AKIAQHIEY6XJ2XBEOSH6 '
-# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_ACCESS_KEY_ID = ' '
+# AWS_SECRET_ACCESS_KEY = ''
 # AWS_STORAGE_BUCKET_NAME = 'mediayumi'
 # AWS_S3_SIGNATURE_NAME = 's3v4',
 # AWS_S3_REGION_NAME = 'ap-southeast-2'
